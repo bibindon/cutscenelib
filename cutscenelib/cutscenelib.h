@@ -74,7 +74,7 @@ public:
 
 private:
 
-    ISprite* m_sprTextBack;
+    ISprite* m_sprTextBack = nullptr;
     IFont* m_font;
     ISoundEffect* m_SE;
     std::vector<TalkBall> m_talkBallList;

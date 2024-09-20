@@ -231,7 +231,7 @@ void AnimMesh::SetAnim(const std::string& animSet)
 
 void AnimMesh::Update()
 {
-    m_animTime += 1.f/60;
+    m_animTime += 1.f / 60;
     m_D3DAnimController->SetTrackPosition(0, 0.f);
     m_D3DAnimController->AdvanceTime(m_animTime, nullptr);
     if (m_isPlaying)
