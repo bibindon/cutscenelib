@@ -1,535 +1,205 @@
-#pragma comment( lib, "d3d9.lib" )
-#if defined(DEBUG) || defined(_DEBUG)
-#pragma comment( lib, "d3dx9d.lib" )
+#pragma comment(lib, "d3d9.lib")
+#ifdef _DEBUG
+#pragma comment(lib, "d3dx9d.lib")
 #else
-#pragma comment( lib, "d3dx9.lib" )
+#pragma comment(lib, "d3dx9.lib")
 #endif
 
-#pragma comment (lib, "winmm.lib")
+#include "Common.h"
+#include "Mesh.h"
+#include "AnimMesh.h"
 
-#pragma comment( lib, "cutscenelib.lib" )
-
-#include "..\cutscenelib\cutscenelib.h"
-
-#include <d3d9.h>
-#include <d3dx9.h>
+#include <windows.h>
 #include <string>
-#include <vector>
+#include <d3dx9.h>
 
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
+const std::string   TITLE = "simple anim mesh";
+LPDIRECT3DDEVICE9   g_D3DDevice;
+LPDIRECT3D9         g_D3D;
+Mesh*               g_Mesh { nullptr };
+AnimMesh*           g_AnimMesh = { nullptr };
 
+const D3DXVECTOR3   UPWARD { 0.0f, 1.0f, 0.0f };
+D3DXVECTOR3         g_eyePos { 0.0f, 3.0f, 0.0f };
+D3DXVECTOR3         g_lookAtPos { 0.0f, 1.0f, 0.0f };
+float               g_viewAngle { D3DX_PI / 4 };
+float               g_radian { D3DX_PI * 3 / 4 };
 
-#define SAFE_RELEASE(p) { if (p) { (p)->Release(); (p) = NULL; } }
-
-D3DXVECTOR3 cameraEye = { 6.f, 4.f, 2.f };
-D3DXVECTOR3 cameraAt = { 0.f, 0.f, 0.f };
-
-class Sprite : public ISprite
+D3DXMATRIX GetViewMatrix()
 {
-public:
-
-    Sprite(LPDIRECT3DDEVICE9 dev)
-        : m_pD3DDevice(dev)
-    {
-    }
-
-    void DrawImage(const int x, const int y, const int transparency) override
-    {
-        D3DXVECTOR3 pos {(float)x, (float)y, 0.f};
-        m_D3DSprite->Begin(D3DXSPRITE_ALPHABLEND);
-        RECT rect = {
-            0,
-            0,
-            static_cast<LONG>(m_width),
-            static_cast<LONG>(m_height) };
-        D3DXVECTOR3 center { 0, 0, 0 };
-        m_D3DSprite->Draw(
-            m_pD3DTexture,
-            &rect,
-            &center,
-            &pos,
-            D3DCOLOR_ARGB(transparency, 255, 255, 255));
-        m_D3DSprite->End();
-
-    }
-
-    void Load(const std::string& filepath) override
-    {
-        LPD3DXSPRITE tempSprite { nullptr };
-        if (FAILED(D3DXCreateSprite(m_pD3DDevice, &m_D3DSprite)))
-        {
-            throw std::exception("Failed to create a sprite.");
-        }
-
-        if (FAILED(D3DXCreateTextureFromFile(
-            m_pD3DDevice,
-            filepath.c_str(),
-            &m_pD3DTexture)))
-        {
-            throw std::exception("Failed to create a texture.");
-        }
-
-        D3DSURFACE_DESC desc { };
-        if (FAILED(m_pD3DTexture->GetLevelDesc(0, &desc)))
-        {
-            throw std::exception("Failed to create a texture.");
-        }
-        m_width = desc.Width;
-        m_height = desc.Height;
-    }
-
-    ~Sprite()
-    {
-        m_D3DSprite->Release();
-        m_D3DSprite = nullptr;
-        m_pD3DTexture->Release();
-        m_pD3DTexture = nullptr;
-    }
-
-private:
-
-    LPDIRECT3DDEVICE9 m_pD3DDevice = NULL;
-    LPD3DXSPRITE m_D3DSprite = NULL;
-    LPDIRECT3DTEXTURE9 m_pD3DTexture = NULL;
-    UINT m_width { 0 };
-    UINT m_height { 0 };
-};
-
-class Font : public IFont
-{
-public:
-
-    Font(LPDIRECT3DDEVICE9 pD3DDevice)
-        : m_pD3DDevice(pD3DDevice)
-    {
-    }
-
-    void Init()
-    {
-        HRESULT hr = D3DXCreateFont(
-            m_pD3DDevice,
-            24,
-            0,
-            FW_NORMAL,
-            1,
-            false,
-            SHIFTJIS_CHARSET,
-            OUT_TT_ONLY_PRECIS,
-            ANTIALIASED_QUALITY,
-            FF_DONTCARE,
-            "ＭＳ 明朝",
-            &m_pFont);
-    }
-
-    virtual void DrawText_(const std::string& msg, const int x, const int y)
-    {
-        RECT rect = { x, y, 0, 0 };
-        m_pFont->DrawText(NULL, msg.c_str(), -1, &rect, DT_LEFT | DT_NOCLIP,
-            D3DCOLOR_ARGB(255, 255, 255, 255));
-    }
-
-    ~Font()
-    {
-        m_pFont->Release();
-        m_pFont = nullptr;
-    }
-
-private:
-
-    LPDIRECT3DDEVICE9 m_pD3DDevice = NULL;
-    LPD3DXFONT m_pFont = NULL;
-};
-
-
-class SoundEffect : public ISoundEffect
-{
-    virtual void PlayMove() override
-    {
-        PlaySound("cursor_move.wav", NULL, SND_FILENAME | SND_ASYNC);
-    }
-    virtual void Init() override
-    {
-
-    }
-};
-
-class Camera : public ICamera
-{
-public:
-    Camera(const D3DXVECTOR3& eye, const D3DXVECTOR3& at)
-        : m_eye(eye)
-        , m_at(at)
-    {
-    }
-    virtual void SetPosAndRot()
-    {
-        cameraEye = m_eye;
-        cameraAt = m_at;
-    }
-private:
-    D3DXVECTOR3 m_eye;
-    D3DXVECTOR3 m_at;
-};
-
-LPDIRECT3D9 g_pD3D = NULL;
-LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
-LPD3DXFONT g_pFont = NULL;
-LPD3DXMESH pMesh = NULL;
-D3DMATERIAL9* pMaterials = NULL;
-LPDIRECT3DTEXTURE9* pTextures = NULL;
-DWORD dwNumMaterials = 0;
-LPD3DXEFFECT pEffect = NULL;
-D3DXMATERIAL* d3dxMaterials = NULL;
-bool bFinish = false;
-
-Talk* talk = nullptr;
-
-void TextDraw(LPD3DXFONT pFont, char* text, int X, int Y)
-{
-    RECT rect = { X,Y,0,0 };
-    pFont->DrawText(NULL, text, -1, &rect, DT_LEFT | DT_NOCLIP, D3DCOLOR_ARGB(255, 0, 0, 0));
+    D3DXMATRIX viewMatrix { };
+    D3DXMatrixLookAtLH(&viewMatrix, &g_eyePos, &g_lookAtPos, &UPWARD);
+    return viewMatrix;
 }
 
-HRESULT InitD3D(HWND hWnd)
+D3DXMATRIX GetProjMatrix()
 {
-    if (NULL == (g_pD3D = Direct3DCreate9(D3D_SDK_VERSION)))
-    {
-        return E_FAIL;
-    }
-
-    D3DPRESENT_PARAMETERS d3dpp;
-    ZeroMemory(&d3dpp, sizeof(d3dpp));
-    d3dpp.Windowed = TRUE;
-    d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-    d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-    d3dpp.BackBufferCount = 1;
-    d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
-    d3dpp.MultiSampleQuality = 0;
-    d3dpp.EnableAutoDepthStencil = TRUE;
-    d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
-    d3dpp.hDeviceWindow = hWnd;
-    d3dpp.Flags = 0;
-    d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
-    d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
-
-    if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &g_pd3dDevice)))
-    {
-        if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &g_pd3dDevice)))
-        {
-            return(E_FAIL);
-        }
-    }
-
-    HRESULT hr = D3DXCreateFont(
-        g_pd3dDevice,
-        20,
-        0,
-        FW_HEAVY,
-        1,
-        false,
-        SHIFTJIS_CHARSET,
-        OUT_TT_ONLY_PRECIS,
-        ANTIALIASED_QUALITY,
-        FF_DONTCARE,
-        "ＭＳ ゴシック",
-        &g_pFont);
-    if FAILED(hr)
-    {
-        return(E_FAIL);
-    }
-
-    LPD3DXBUFFER pD3DXMtrlBuffer = NULL;
-
-    if (FAILED(D3DXLoadMeshFromX("cube.x", D3DXMESH_SYSTEMMEM,
-        g_pd3dDevice, NULL, &pD3DXMtrlBuffer, NULL,
-        &dwNumMaterials, &pMesh)))
-    {
-        MessageBox(NULL, "Xファイルの読み込みに失敗しました", NULL, MB_OK);
-        return E_FAIL;
-    }
-    d3dxMaterials = (D3DXMATERIAL*)pD3DXMtrlBuffer->GetBufferPointer();
-    pMaterials = new D3DMATERIAL9[dwNumMaterials];
-    pTextures = new LPDIRECT3DTEXTURE9[dwNumMaterials];
-
-    for (DWORD i = 0; i < dwNumMaterials; i++)
-    {
-        pMaterials[i] = d3dxMaterials[i].MatD3D;
-        pMaterials[i].Ambient = pMaterials[i].Diffuse;
-        pTextures[i] = NULL;
-        if (d3dxMaterials[i].pTextureFilename != NULL &&
-            lstrlen(d3dxMaterials[i].pTextureFilename) > 0)
-        {
-            if (FAILED(D3DXCreateTextureFromFile(g_pd3dDevice,
-                d3dxMaterials[i].pTextureFilename,
-                &pTextures[i])))
-            {
-                MessageBox(NULL, "テクスチャの読み込みに失敗しました", NULL, MB_OK);
-            }
-        }
-    }
-    pD3DXMtrlBuffer->Release();
-
-    D3DXCreateEffectFromFile(
-        g_pd3dDevice,
-        "simple.fx",
-        NULL,
-        NULL,
-        D3DXSHADER_DEBUG,
-        NULL,
-        &pEffect,
-        NULL
-    );
-
-    return S_OK;
+    D3DXMATRIX projection_matrix { };
+    D3DXMatrixPerspectiveFovLH(&projection_matrix,
+                               g_viewAngle,
+                               static_cast<float>(1600) / 900,
+                               0.1f,
+                               500.0f);
+    return projection_matrix;
 }
 
-void InitStory()
+void Update()
 {
-    // newはライブラリの使用者がするが、deleteはライブラリ内で行われる。
-    // ちょっと良くないけど・・・まぁよし！
-    ISoundEffect* pSE = new SoundEffect();
-
-    Sprite* sprTextBack = new Sprite(g_pd3dDevice);
-    sprTextBack->Load("textBack.png");
-
-    Sprite* sprFade = new Sprite(g_pd3dDevice);
-    sprFade->Load("black.png");
-
-    IFont* pFont = new Font(g_pd3dDevice);
-    pFont->Init();
-
-    // <br>のような記号を改行として扱うようにしたほうがよい？
-    std::vector<TalkBall> talkBallList;
-    {
-        TalkBall talkBall;
-        std::vector<std::vector<std::string> > vss;
-        std::vector<std::string> vs;
-        vs.push_back("サンプルテキスト１");
-        vs.push_back("サンプルテキスト２");
-        vs.push_back("サンプルテキスト３");
-        vss.push_back(vs);
-        vs.clear();
-        vs.push_back("サンプルテキスト４サンプルテキスト４サンプルテキスト４");
-        vs.push_back("サンプルテキスト５サンプルテキスト５サンプルテキスト５");
-        vs.push_back("サンプルテキスト６サンプルテキスト６サンプルテキスト６");
-        vss.push_back(vs);
-        vs.clear();
-        vs.push_back("サンプルテキスト７サンプルテキスト７サンプルテキスト７サンプルテキスト７サンプルテキスト７");
-        vs.push_back("サンプルテキスト８サンプルテキスト８サンプルテキスト８サンプルテキスト８サンプルテキスト８");
-        vs.push_back("サンプルテキスト９サンプルテキスト９サンプルテキスト９サンプルテキスト９サンプルテキスト９");
-        vss.push_back(vs);
-        talkBall.SetTextList(vss);
-        ICamera* camera = new Camera(D3DXVECTOR3 { 1.2f,1.2f,3.f }, D3DXVECTOR3 { 1.2f,1.f,0.f });
-        talkBall.SetCamera(camera);
-        talkBallList.push_back(talkBall);
-    }
-    {
-        TalkBall talkBall;
-        std::vector<std::vector<std::string> > vss;
-        std::vector<std::string> vs;
-        vs.push_back("サンプルテキストＡ");
-        vs.push_back("サンプルテキストＢ");
-        vs.push_back("サンプルテキストＣ");
-        vss.push_back(vs);
-        vs.clear();
-        vs.push_back("サンプルテキストＤサンプルテキストＤサンプルテキストＤ");
-        vs.push_back("サンプルテキストＥサンプルテキストＥ");
-        vs.push_back("サンプルテキストＦ");
-        vss.push_back(vs);
-        talkBall.SetTextList(vss);
-        ICamera* camera = new Camera(D3DXVECTOR3 { -2, 2, 6 }, D3DXVECTOR3 { -2, 0, 0 });
-        talkBall.SetCamera(camera);
-        talkBallList.push_back(talkBall);
-    }
-    {
-        TalkBall talkBall;
-        std::vector<std::vector<std::string> > vss;
-        std::vector<std::string> vs;
-        vs.push_back("１１１１１１１１１１１");
-        vs.push_back("２２２２２２２２２２２２２");
-        vs.push_back("３３３３３３３３３３３３３３３３３");
-        vss.push_back(vs);
-        vs.clear();
-        vs.push_back("４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４");
-        vs.push_back("");
-        vss.push_back(vs);
-        vs.clear();
-        vs.push_back("５５５５５５５５５５５５５５５５５");
-        vss.push_back(vs);
-        talkBall.SetTextList(vss);
-        ICamera* camera = new Camera(D3DXVECTOR3 { 1.2f, 1.2f, 3.f }, D3DXVECTOR3 { 1.2f, 1.f, 0.f });
-        talkBall.SetCamera(camera);
-        talkBallList.push_back(talkBall);
-    }
-    ICamera* restore = new Camera(cameraEye, cameraAt);
-
-    talk->Init(pFont, pSE, sprTextBack, sprFade, talkBallList, restore);
+    g_radian += 1/100.f;
+    g_eyePos.x = g_lookAtPos.x + std::sin(g_radian)*4;
+    g_eyePos.z = g_lookAtPos.z + std::cos(g_radian)*4;
 }
 
-VOID Cleanup()
+LRESULT CALLBACK WndProc(HWND hWnd, UINT mes, WPARAM wParam, LPARAM lParam)
 {
-    SAFE_RELEASE(pMesh);
-    SAFE_RELEASE(g_pFont);
-    delete[] pMaterials;
-    pMaterials = nullptr;
-    delete[] pTextures;
-    pTextures = nullptr;
-    SAFE_RELEASE(pEffect);
-    SAFE_RELEASE(g_pd3dDevice);
-    SAFE_RELEASE(g_pD3D);
-}
-
-VOID Render()
-{
-    if (NULL == g_pd3dDevice)
+    if (mes == WM_DESTROY)
     {
-        return;
-    }
-    //rotateCamera += 0.010f;
-
-    D3DXMATRIX mat;
-    D3DXMATRIX View, Proj;
-    D3DXMatrixPerspectiveFovLH(&Proj, D3DXToRadian(45), 1600.0f / 900.0f, 1.0f, 10000.0f);
-    D3DXVECTOR3 vec1(cameraEye);
-    D3DXVECTOR3 vec2(cameraAt);
-    D3DXVECTOR3 vec3(0, 1, 0);
-    D3DXMatrixLookAtLH(&View, &vec1, &vec2, &vec3);
-    D3DXMatrixIdentity(&mat);
-    mat = mat * View * Proj;
-    pEffect->SetMatrix("matWorldViewProj", &mat);
-
-    if (talk != nullptr)
-    {
-        bFinish = talk->Update();
-        if (bFinish)
-        {
-            talk->Finalize();
-            delete talk;
-            talk = nullptr;
-        }
-    }
-
-    g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-        D3DCOLOR_XRGB(100, 100, 100), 1.0f, 0);
-
-    if (SUCCEEDED(g_pd3dDevice->BeginScene()))
-    {
-        char msg[128];
-        strcpy_s(msg, 128, "Ｍキーで会話開始");
-        TextDraw(g_pFont, msg, 0, 0);
-
-        pEffect->SetTechnique("BasicTec");
-        UINT numPass;
-        pEffect->Begin(&numPass, 0);
-        pEffect->BeginPass(0);
-        for (DWORD i = 0; i < dwNumMaterials; i++)
-        {
-            pEffect->SetTexture("texture1", pTextures[i]);
-            pMesh->DrawSubset(i);
-        }
-        if (talk != nullptr)
-        {
-            talk->Render();
-        }
-        pEffect->CommitChanges();
-        pEffect->EndPass();
-        pEffect->End();
-        g_pd3dDevice->EndScene();
-    }
-
-    g_pd3dDevice->Present(NULL, NULL, NULL, NULL);
-}
-
-LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
-    case WM_DESTROY:
-        Cleanup();
         PostQuitMessage(0);
         return 0;
-    case WM_PAINT:
-        Render();
-        return 0;
-    case WM_SIZE:
-        InvalidateRect(hWnd, NULL, true);
-        return 0;
-    case WM_KEYDOWN:
-        switch (wParam)
-        {
-        case 'M':
-        {
-            if (talk != nullptr)
-            {
-                talk->Finalize();
-                delete talk;
-            }
-            talk = new Talk();
-            InitStory();
-            break;
-        }
-        case VK_RETURN:
-        {
-            if (talk != nullptr)
-            {
-                talk->Next();
-            }
-            break;
-        }
-        case VK_ESCAPE:
-            PostQuitMessage(0);
-            break;
-        }
-        break;
-    case WM_LBUTTONDOWN:
-    {
-        if (talk != nullptr)
-        {
-            talk->Next();
-        }
-        break;
-    }
     }
 
-    return DefWindowProc(hWnd, msg, wParam, lParam);
+    return DefWindowProc(hWnd, mes, wParam, lParam);
 }
 
-INT WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ INT)
+void Init(const HINSTANCE& hInstance)
 {
-    WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, MsgProc, 0L, 0L,
-                      GetModuleHandle(NULL), NULL, NULL, NULL, NULL,
-                      "Window1", NULL };
-    RegisterClassEx(&wc);
+    WNDCLASSEX wcex = { sizeof(WNDCLASSEX),
+                        CS_HREDRAW | CS_VREDRAW,
+                        WndProc,
+                        0,
+                        0,
+                        hInstance,
+                        NULL,
+                        NULL,
+                        (HBRUSH)(COLOR_WINDOW + 1),
+                        NULL,
+                        TITLE.c_str(), NULL
+    };
 
-    RECT rect;
-    SetRect(&rect, 0, 0, 1600, 900);
-    AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
-    rect.right = rect.right - rect.left;
-    rect.bottom = rect.bottom - rect.top;
-    rect.top = 0;
-    rect.left = 0;
-
-    HWND hWnd = CreateWindow("Window1", "Hello DirectX9 World !!",
-        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rect.right, rect.bottom,
-        NULL, NULL, wc.hInstance, NULL);
-
-    if (SUCCEEDED(InitD3D(hWnd)))
+    if (!RegisterClassEx(&wcex))
     {
-        ShowWindow(hWnd, SW_SHOWDEFAULT);
-        UpdateWindow(hWnd);
+        throw std::exception("");
+    }
 
-        MSG msg;
-        while (GetMessage(&msg, NULL, 0, 0))
+    HWND hWnd = CreateWindow(TITLE.c_str(),
+                             TITLE.c_str(),
+                             WS_OVERLAPPEDWINDOW,
+                             CW_USEDEFAULT,
+                             0,
+                             CW_USEDEFAULT,
+                             0,
+                             NULL,
+                             NULL,
+                             hInstance,
+                             NULL);
+
+    if (hWnd == nullptr)
+    {
+        throw std::exception("");
+    }
+
+    if (!(g_D3D = Direct3DCreate9(D3D_SDK_VERSION)))
+    {
+        throw std::exception("");
+    }
+
+    D3DPRESENT_PARAMETERS d3dpp = { 0,
+                                    0,
+                                    D3DFMT_UNKNOWN,
+                                    0,
+                                    D3DMULTISAMPLE_NONE,
+                                    0,
+                                    D3DSWAPEFFECT_DISCARD,
+                                    NULL,
+                                    TRUE,
+                                    TRUE,
+                                    D3DFMT_D24S8,
+                                    0,
+                                    D3DPRESENT_RATE_DEFAULT,
+                                    D3DPRESENT_INTERVAL_DEFAULT };
+
+    LPDIRECT3DDEVICE9 D3DDevice = nullptr;
+    if (FAILED(g_D3D->CreateDevice(D3DADAPTER_DEFAULT,
+                                   D3DDEVTYPE_HAL,
+                                   hWnd,
+                                   D3DCREATE_HARDWARE_VERTEXPROCESSING,
+                                   &d3dpp,
+                                   &D3DDevice)))
+    {
+        if (FAILED(g_D3D->CreateDevice(D3DADAPTER_DEFAULT,
+                                       D3DDEVTYPE_HAL,
+                                       hWnd,
+                                       D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+                                       &d3dpp,
+                                       &D3DDevice)))
         {
-            TranslateMessage(&msg);
+            g_D3D->Release();
+            throw std::exception("");
+        }
+    }
+    g_D3DDevice = D3DDevice;
+
+    g_Mesh = new Mesh(g_D3DDevice,
+                      "tiger.x",
+                      D3DXVECTOR3(3, 1, 0),
+                      D3DXVECTOR3(0, 0, 0),
+                      1.0f);
+    g_AnimMesh = new AnimMesh(g_D3DDevice,
+                              "hoshiman.x",
+                              D3DXVECTOR3(0, 0, 0),
+                              D3DXVECTOR3(0, 0, 0),
+                              0.5f);
+
+    ShowWindow(hWnd, SW_SHOW);
+}
+
+void Finalize()
+{
+    SAFE_DELETE(g_Mesh);
+    SAFE_DELETE(g_AnimMesh);
+    SAFE_RELEASE(g_D3DDevice);
+    SAFE_RELEASE(g_D3D);
+}
+
+int MainLoop()
+{
+    MSG msg;
+
+    do
+    {
+        Sleep(1);
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
             DispatchMessage(&msg);
         }
-    }
 
-    UnregisterClass("Window1", wc.hInstance);
-    Cleanup();
-    _CrtDumpMemoryLeaks();
+        Update();
+        g_AnimMesh->Update();
+
+        g_D3DDevice->Clear(0,
+                           NULL,
+                           D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+                           D3DCOLOR_XRGB(40, 40, 80),
+                           1.0f,
+                           0);
+        g_D3DDevice->BeginScene();
+
+        g_Mesh->Render(GetViewMatrix(), GetProjMatrix());
+        g_AnimMesh->Render(GetViewMatrix(), GetProjMatrix());
+
+        g_D3DDevice->EndScene();
+        g_D3DDevice->Present(NULL, NULL, NULL, NULL);
+
+    } while (msg.message != WM_QUIT);
+
     return 0;
 }
+
+int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE, _In_ LPSTR, _In_ int)
+{
+    Init(hInstance);
+    MainLoop();
+    Finalize();
+    return 0;
+}
+
