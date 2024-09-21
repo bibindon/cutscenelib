@@ -31,7 +31,7 @@ D3DXVECTOR3         g_lookAtPos { 0.0f, 1.0f, 0.0f };
 float               g_viewAngle { D3DX_PI / 4 };
 float               g_radian { D3DX_PI * 3 / 4 };
 
-Talk*               g_talk = nullptr;
+CutScene*               g_talk = nullptr;
 
 class Sprite : public ISprite
 {
@@ -165,19 +165,39 @@ class SoundEffect : public ISoundEffect
 class Camera : public ICamera
 {
 public:
-    Camera(const D3DXVECTOR3& eye, const D3DXVECTOR3& at)
-        : m_eye(eye)
-        , m_at(at)
+
+    virtual void SetPosAndRot(const float posX, const float posY, const float posZ,
+                              const float AtX, const float AtY, const float AtZ)
+    {
+        g_eyePos    = D3DXVECTOR3(posX, posY, posZ);
+        g_lookAtPos = D3DXVECTOR3(AtX, AtY, AtZ);
+    }
+
+};
+
+class Model : public IModel
+{
+public:
+    Model(const D3DXVECTOR3& startEye, const D3DXVECTOR3& startAt,
+          const D3DXVECTOR3& endEye,   const D3DXVECTOR3& endAt)
+        : m_startEye(startEye), m_startAt(startAt)
+        , m_endEye(endEye),     m_endAt(endAt)
     {
     }
-    virtual void SetPosAndRot()
+
+    // progressは 0 ~ 100が与えられる。
+    virtual void SetPosAndRot(const int progress)
     {
-        g_eyePos = m_eye;
-        g_lookAtPos = m_at;
+//        g_eyePos = m_startEye;
+//        g_lookAtPos = m_startAt;
     }
+
 private:
-    D3DXVECTOR3 m_eye;
-    D3DXVECTOR3 m_at;
+
+    D3DXVECTOR3 m_startEye;
+    D3DXVECTOR3 m_startAt;
+    D3DXVECTOR3 m_endEye;
+    D3DXVECTOR3 m_endAt;
 };
 
 D3DXMATRIX GetViewMatrix()
@@ -205,82 +225,13 @@ void Update()
     //g_eyePos.z = g_lookAtPos.z + std::cos(g_radian)*4;
 }
 
-void StartTalk()
+void StartCutScene()
 {
     ISoundEffect* pSE = new SoundEffect();
-
     Sprite* sprTextBack = new Sprite(g_D3DDevice);
-    sprTextBack->Load("textBack.png");
-
     Sprite* sprFade = new Sprite(g_D3DDevice);
-    sprFade->Load("black.png");
-
     IFont* pFont = new Font(g_D3DDevice);
-    pFont->Init();
-
-    std::vector<TalkBall> talkBallList;
-    {
-        TalkBall talkBall;
-        std::vector<std::vector<std::string> > vss;
-        std::vector<std::string> vs;
-        vs.push_back("サンプルテキスト１");
-        vs.push_back("サンプルテキスト２");
-        vs.push_back("サンプルテキスト３");
-        vss.push_back(vs);
-        vs.clear();
-        vs.push_back("サンプルテキスト４サンプルテキスト４サンプルテキスト４");
-        vs.push_back("サンプルテキスト５サンプルテキスト５サンプルテキスト５");
-        vs.push_back("サンプルテキスト６サンプルテキスト６サンプルテキスト６");
-        vss.push_back(vs);
-        vs.clear();
-        vs.push_back("サンプルテキスト７サンプルテキスト７サンプルテキスト７サンプルテキスト７サンプルテキスト７");
-        vs.push_back("サンプルテキスト８サンプルテキスト８サンプルテキスト８サンプルテキスト８サンプルテキスト８");
-        vs.push_back("サンプルテキスト９サンプルテキスト９サンプルテキスト９サンプルテキスト９サンプルテキスト９");
-        vss.push_back(vs);
-        talkBall.SetTextList(vss);
-        ICamera* camera = new Camera(D3DXVECTOR3 { 1.2f,1.2f,3.f }, D3DXVECTOR3 { 1.2f,1.f,0.f });
-        talkBall.SetCamera(camera);
-        talkBallList.push_back(talkBall);
-    }
-    {
-        TalkBall talkBall;
-        std::vector<std::vector<std::string> > vss;
-        std::vector<std::string> vs;
-        vs.push_back("サンプルテキストＡ");
-        vs.push_back("サンプルテキストＢ");
-        vs.push_back("サンプルテキストＣ");
-        vss.push_back(vs);
-        vs.clear();
-        vs.push_back("サンプルテキストＤサンプルテキストＤサンプルテキストＤ");
-        vs.push_back("サンプルテキストＥサンプルテキストＥ");
-        vs.push_back("サンプルテキストＦ");
-        vss.push_back(vs);
-        talkBall.SetTextList(vss);
-        ICamera* camera = new Camera(D3DXVECTOR3 { -2, 2, 6 }, D3DXVECTOR3 { -2, 0, 0 });
-        talkBall.SetCamera(camera);
-        talkBallList.push_back(talkBall);
-    }
-    {
-        TalkBall talkBall;
-        std::vector<std::vector<std::string> > vss;
-        std::vector<std::string> vs;
-        vs.push_back("１１１１１１１１１１１");
-        vs.push_back("２２２２２２２２２２２２２");
-        vs.push_back("３３３３３３３３３３３３３３３３３");
-        vss.push_back(vs);
-        vs.clear();
-        vs.push_back("４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４");
-        vs.push_back("");
-        vss.push_back(vs);
-        vs.clear();
-        vs.push_back("５５５５５５５５５５５５５５５５５");
-        vss.push_back(vs);
-        talkBall.SetTextList(vss);
-        ICamera* camera = new Camera(D3DXVECTOR3 { 1.2f, 1.2f, 3.f }, D3DXVECTOR3 { 1.2f, 1.f, 0.f });
-        talkBall.SetCamera(camera);
-        talkBallList.push_back(talkBall);
-    }
-    ICamera* restore = new Camera(g_eyePos, g_lookAtPos);
+    ICamera* pCamera = new Camera();
 
     if (g_talk != nullptr)
     {
@@ -288,8 +239,10 @@ void StartTalk()
         delete g_talk;
         g_talk = nullptr;
     }
-    g_talk = new Talk();
-    g_talk->Init(pFont, pSE, sprTextBack, sprFade, talkBallList, restore);
+    g_talk = new CutScene();
+    g_talk->Init("cutsceneSample.csv", pFont, pSE, sprTextBack, sprFade, pCamera,
+                 g_eyePos.x,    g_eyePos.y,    g_eyePos.z,
+                 g_lookAtPos.x, g_lookAtPos.y, g_lookAtPos.z);
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -312,15 +265,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         case 'M':
         {
-            StartTalk();
-            break;
-        }
-        case VK_RETURN:
-        {
-            if (g_talk != nullptr)
-            {
-                g_talk->Next();
-            }
+            StartCutScene();
             break;
         }
         }

@@ -1,5 +1,6 @@
 #include "cutscenelib.h"
 #include <sstream>
+#include "HeaderOnlyCsv.hpp"
 
 std::vector<std::string> split(const std::string& s, char delim)
 {
@@ -15,161 +16,186 @@ std::vector<std::string> split(const std::string& s, char delim)
     return result;
 }
 
-void Talk::Init(
+void CutScene::Init(
+    const std::string& csvfilepath,
     IFont* font,
     ISoundEffect* SE,
     ISprite* sprTextBack,
     ISprite* sprFade,
-    const std::vector<TalkBall>& pageList,
-    ICamera* restore)
+    ICamera* camera,
+    const float eyeX,
+    const float eyeY,
+    const float eyeZ,
+    const float lookAtX,
+    const float lookAtY,
+    const float lookAtZ)
 {
+    m_csvfilepath = csvfilepath;
     m_font = font;
     m_SE = SE;
     m_sprTextBack = sprTextBack;
     m_sprFade = sprFade;
-    m_talkBallList = pageList;
+    m_camera = camera;
+    m_restoreEyeX = eyeX;
+    m_restoreEyeY = eyeY;
+    m_restoreEyeZ = eyeZ;
+    m_restoreLookAtX = lookAtX;
+    m_restoreLookAtY = lookAtY;
+    m_restoreLookAtZ = lookAtZ;
+
+    m_font->Init();
+    m_SE->Init();
+    m_sprTextBack->Load("textBack.png");
+    m_sprFade->Load("black.png");
+
     m_isFadeIn = true;
-    m_restore = restore;
+
+    std::vector<Action> actionList = CreateActionList();
+    m_actionList = actionList;
+    m_startTime = std::chrono::system_clock::now();
 }
 
-void Talk::Next()
+std::vector<Action> CutScene::CreateActionList()
 {
-    if (m_waitNextCount < WAIT_NEXT_FRAME)
+    std::vector<Action> actionList;
+    std::vector<std::vector<std::string> > vss = csv::Read(m_csvfilepath);
+
+    for (std::size_t i = 1; i < vss.size(); ++i)
     {
-        return;
+        Action action;
+        action.Init(vss.at(i), m_camera);
+        actionList.push_back(action);
     }
-    int textIndex = m_talkBallList.at(m_pageIndex).GetTextIndex();
-    int textIndexMax = (int)m_talkBallList.at(m_pageIndex).GetTextList().size();
-    if (textIndex < textIndexMax - 1)
-    {
-        textIndex++;
-    }
-    else
-    {
-        if (m_pageIndex <= (int)m_talkBallList.size() - 2)
-        {
-            textIndex = 0;
-            m_pageIndex++;
-        }
-        else
-        {
-            m_FadeOutCount = 0;
-            m_isFadeOut = true;
-        }
-    }
-    m_talkBallList.at(m_pageIndex).SetTextIndex(textIndex);
-    m_SE->PlayMove();
-    m_waitNextCount = 0;
+    return actionList;
 }
 
-bool Talk::Update()
+bool CutScene::Update()
 {
-    bool isFinish = false;
-    m_waitNextCount++;
-    if (m_isFadeIn)
+    for (std::size_t i = 0; i < m_actionList.size(); ++i)
     {
-        if (m_FadeInCount < FADE_FRAME_MAX)
-        {
-            m_FadeInCount++;
-        }
-        else
-        {
-            m_isFadeIn = false;
-            m_FadeInCount = 0;
-        }
+        m_currentTime = std::chrono::system_clock::now();
+        int duration = (int)std::chrono::duration_cast<std::chrono::milliseconds>(
+                       m_currentTime - m_startTime).count();
+
+        m_actionList.at(i).Update(duration);
     }
-    if (m_isFadeOut)
-    {
-        if (m_FadeOutCount < FADE_FRAME_MAX)
-        {
-            m_FadeOutCount++;
-        }
-        else
-        {
-            isFinish = true;
-        }
-    }
-    return isFinish;
+    return false;
 }
 
-void Talk::Render()
+void CutScene::Render()
 {
-    m_talkBallList.at(m_pageIndex).GetCamera()->SetPosAndRot();
-
-    m_sprTextBack->DrawImage(0, 0);
-    std::vector<std::vector<std::string>> vss = m_talkBallList.at(m_pageIndex).GetTextList();
-    int textIndex = m_talkBallList.at(m_pageIndex).GetTextIndex();
-    if (vss.at(textIndex).size() >= 1)
-    {
-        m_font->DrawText_(vss.at(textIndex).at(0), 100, 730);
-    }
-
-    if (vss.at(textIndex).size() >= 2)
-    {
-        m_font->DrawText_(vss.at(textIndex).at(1), 100, 780);
-    }
-
-    if (vss.at(textIndex).size() >= 3)
-    {
-        m_font->DrawText_(vss.at(textIndex).at(2), 100, 830);
-    }
-
-    if (m_isFadeIn)
-    {
-        m_sprFade->DrawImage(0, 0, 255 - m_FadeInCount*255/FADE_FRAME_MAX);
-    }
-    if (m_isFadeOut)
-    {
-        m_sprFade->DrawImage(0, 0, m_FadeOutCount*255/FADE_FRAME_MAX);
-    }
 }
 
-void Talk::Finalize()
+void CutScene::Finalize()
 {
-    m_restore->SetPosAndRot();
+    m_camera->SetPosAndRot(m_restoreEyeX,    m_restoreEyeY,    m_restoreEyeZ,
+                           m_restoreLookAtX, m_restoreLookAtY, m_restoreEyeZ);
 
-    for (std::size_t i = 0; i < m_talkBallList.size(); ++i)
-    {
-        delete m_talkBallList.at(i).GetCamera();
-        m_talkBallList.at(i).SetCamera(nullptr);
-    }
     delete m_sprTextBack;
     m_sprTextBack = nullptr;
+
     delete m_sprFade;
     m_sprFade = nullptr;
+
     delete m_font;
     m_font = nullptr;
+
     delete m_SE;
     m_SE = nullptr;
 }
 
-std::vector<std::vector<std::string>> TalkBall::GetTextList() const
-{
-    return m_textList;
-}
-
-void TalkBall::SetTextList(const std::vector<std::vector<std::string>>& textList)
-{
-    m_textList = textList;
-}
-
-int TalkBall::GetTextIndex() const
-{
-    return m_textIndex;
-}
-
-void TalkBall::SetTextIndex(const int index)
-{
-    m_textIndex = index;
-}
-
-ICamera* TalkBall::GetCamera() const
-{
-    return m_camera;
-}
-
-void TalkBall::SetCamera(ICamera* const camera)
+void Action::Init(const std::vector<std::string>& scriptLine, ICamera* camera)
 {
     m_camera = camera;
+
+    m_id    = std::atoi(scriptLine.at(0).c_str());
+    m_start = std::atoi(scriptLine.at(1).c_str());
+    m_end   = std::atoi(scriptLine.at(2).c_str());
+
+    if (scriptLine.at(3) == "カメラ")
+    {
+        m_eType = eType::CAMERA;
+    }
+    else if (scriptLine.at(3) == "モデル位置")
+    {
+        m_eType = eType::MODEL_POS;
+    }
+    else if (scriptLine.at(3) == "モデルアニメ")
+    {
+        m_eType = eType::MODEL_ANIM;
+    }
+    else if (scriptLine.at(3) == "テキスト")
+    {
+        m_eType = eType::TEXT;
+    }
+    else if (scriptLine.at(3) == "効果音")
+    {
+        m_eType = eType::SE;
+    }
+
+    if (m_eType == eType::CAMERA)
+    {
+        std::vector<std::string> vs;
+        vs = split(scriptLine.at(4), ':');
+        m_stCamera.m_startPosX = (float)std::atof(vs.at(0).c_str());
+        m_stCamera.m_startPosY = (float)std::atof(vs.at(1).c_str());
+        m_stCamera.m_startPosZ = (float)std::atof(vs.at(2).c_str());
+
+        vs = split(scriptLine.at(5), ':');
+        m_stCamera.m_startAtX = (float)std::atof(vs.at(0).c_str());
+        m_stCamera.m_startAtY = (float)std::atof(vs.at(1).c_str());
+        m_stCamera.m_startAtZ = (float)std::atof(vs.at(2).c_str());
+
+        vs = split(scriptLine.at(6), ':');
+        m_stCamera.m_endPosX = (float)std::atof(vs.at(0).c_str());
+        m_stCamera.m_endPosY = (float)std::atof(vs.at(1).c_str());
+        m_stCamera.m_endPosZ = (float)std::atof(vs.at(2).c_str());
+
+        vs = split(scriptLine.at(7), ':');
+        m_stCamera.m_endAtX = (float)std::atof(vs.at(0).c_str());
+        m_stCamera.m_endAtY = (float)std::atof(vs.at(1).c_str());
+        m_stCamera.m_endAtZ = (float)std::atof(vs.at(2).c_str());
+    }
 }
 
+void Action::Update(const int elapsed)
+{
+    std::string work = std::to_string(elapsed);
+    work += "\n";
+    OutputDebugString(work.c_str());
+
+    if (elapsed < m_start || m_end <= elapsed)
+    {
+        return;
+    }
+    if (m_eType == eType::CAMERA)
+    {
+        // progressは0.f ~ 1.f
+        float progress = (float)(elapsed - m_start) / (m_end - m_start) ;
+        float workEyeX = 0.f;
+        float workEyeY = 0.f;
+        float workEyeZ = 0.f;
+        float workAtX = 0.f;
+        float workAtY = 0.f;
+        float workAtZ = 0.f;
+        workEyeX = m_stCamera.m_startPosX + (m_stCamera.m_endPosX - m_stCamera.m_startPosX) * progress;
+        workEyeY = m_stCamera.m_startPosY + (m_stCamera.m_endPosY - m_stCamera.m_startPosY) * progress;
+        workEyeZ = m_stCamera.m_startPosZ + (m_stCamera.m_endPosZ - m_stCamera.m_startPosZ) * progress;
+        workAtX = m_stCamera.m_startAtX + (m_stCamera.m_endAtX - m_stCamera.m_startAtX) * progress;
+        workAtY = m_stCamera.m_startAtY + (m_stCamera.m_endAtY - m_stCamera.m_startAtY) * progress;
+        workAtZ = m_stCamera.m_startAtZ + (m_stCamera.m_endAtZ - m_stCamera.m_startAtZ) * progress;
+        m_camera->SetPosAndRot(workEyeX, workEyeY, workEyeZ, workAtX, workAtY, workAtZ);
+    }
+}
+
+void Action::Render()
+{
+    if (m_eType == eType::CAMERA)
+    {
+        // do nothing.
+    }
+}
+
+void Action::Finalize()
+{
+}

@@ -2,6 +2,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <chrono>
 
 class ISprite
 {
@@ -22,6 +23,7 @@ public:
 class ISoundEffect
 {
 public:
+    // TODO PlayMove‚Å‚Í‚È‚¢‹C‚ª‚·‚é
     virtual void PlayMove() = 0;
     virtual void Init() = 0;
     virtual ~ISoundEffect() {};
@@ -30,43 +32,135 @@ public:
 class ICamera
 {
 public:
-    virtual void SetPosAndRot() = 0;
+    virtual void SetPosAndRot(const float posX, const float posY, const float posZ,
+                              const float AtX, const float AtY, const float AtZ) = 0;
     virtual ~ICamera() {};
 };
 
-class TalkBall
+class IModel
+{
+public:
+    virtual void SetPosAndRot(const int progress) = 0;
+    virtual void SetAnim(const std::string& animName) = 0;
+    virtual ~IModel() {};
+};
+
+class Action
 {
 public:
 
-    std::vector<std::vector<std::string>> GetTextList() const;
-    void SetTextList(const std::vector<std::vector<std::string>>& textList);
-
-    int GetTextIndex() const;
-    void SetTextIndex(const int index);
-
-    ICamera* GetCamera() const;
-    void SetCamera(ICamera* const camera);
+    void Init(const std::vector<std::string>& scriptLine, ICamera* camera);
+    void Update(const int elapsed);
+    void Render();
+    void Finalize();
 
 private:
 
-    std::vector<std::vector<std::string>> m_textList;
-    int m_textIndex = 0;
+    enum class eType
+    {
+        CAMERA,
+        MODEL_POS,
+        MODEL_ANIM,
+        TEXT,
+        SE,
+    };
+    eType m_eType = eType::CAMERA;
+
+    int m_id = 0;
+    int m_start = 0;
+    int m_end = 0;
+
+    struct stCamera
+    {
+        float m_startPosX = 0.f;
+        float m_startPosY = 0.f;
+        float m_startPosZ = 0.f;
+        float m_startAtX = 0.f;
+        float m_startAtY = 0.f;
+        float m_startAtZ = 0.f;
+
+        float m_endPosX = 0.f;
+        float m_endPosY = 0.f;
+        float m_endPosZ = 0.f;
+        float m_endAtX = 0.f;
+        float m_endAtY = 0.f;
+        float m_endAtZ = 0.f;
+    };
+
+    struct stModelPos
+    {
+        std::string m_XFileName;
+        int m_subId = 0;
+
+        float m_PosX = 0.f;
+        float m_PosY = 0.f;
+        float m_PosZ = 0.f;
+        float m_RotX = 0.f;
+        float m_RotY = 0.f;
+        float m_RotZ = 0.f;
+    };
+
+    struct stModelAnim
+    {
+        std::string m_XFileName;
+        int m_subId = 0;
+        std::string m_animName;
+
+        float m_startPosX = 0.f;
+        float m_startPosY = 0.f;
+        float m_startPosZ = 0.f;
+        float m_startRotX = 0.f;
+        float m_startRotY = 0.f;
+        float m_startRotZ = 0.f;
+
+        float m_endPosX = 0.f;
+        float m_endPosY = 0.f;
+        float m_endPosZ = 0.f;
+        float m_endRotX = 0.f;
+        float m_endRotY = 0.f;
+        float m_endRotZ = 0.f;
+    };
+
+    struct stText
+    {
+        std::string m_text;
+    };
+
+    struct stSE
+    {
+        std::string m_fileName;
+        int m_volume = 0;
+    };
+
+    stCamera m_stCamera;
+    stModelPos m_stModelPos;
+    stModelAnim m_stModelAnim;
+    stText m_stText;
+    stSE m_stSE;
+
     ICamera* m_camera = nullptr;
 };
 
-class Talk
+class CutScene
 {
 public:
 
     void Init(
+        const std::string& csvfilepath,
         IFont* font,
         ISoundEffect* SE,
         ISprite* sprTextBack,
         ISprite* sprFade,
-        const std::vector<TalkBall>& talkBallList,
-        ICamera* restore);
+        ICamera* restore,
+        const float eyeX,
+        const float eyeY,
+        const float eyeZ,
+        const float lookAtX,
+        const float lookAtY,
+        const float lookAtZ);
 
-    void Next();
+    std::vector<Action> CreateActionList();
+
     bool Update();
     void Render();
 
@@ -74,13 +168,17 @@ public:
 
 private:
 
+    std::chrono::system_clock::time_point m_startTime;
+    std::chrono::system_clock::time_point m_currentTime;
+
+    std::string m_csvfilepath;
     ISprite* m_sprTextBack = nullptr;
-    IFont* m_font;
-    ISoundEffect* m_SE;
-    std::vector<TalkBall> m_talkBallList;
+    IFont* m_font = nullptr;
+    ISoundEffect* m_SE = nullptr;
+    std::vector<Action> m_actionList;
     int m_pageIndex = 0;
 
-    ISprite* m_sprFade;
+    ISprite* m_sprFade = nullptr;
     const int FADE_FRAME_MAX = 30;
     bool m_isFadeIn = false;
     int m_FadeInCount = 0;
@@ -90,6 +188,13 @@ private:
     const int WAIT_NEXT_FRAME = 60;
     int m_waitNextCount = 0;
 
-    ICamera* m_restore = nullptr;
+    ICamera* m_camera = nullptr;
+
+    float m_restoreEyeX    = 0.f;
+    float m_restoreEyeY    = 0.f;
+    float m_restoreEyeZ    = 0.f;
+    float m_restoreLookAtX = 0.f;
+    float m_restoreLookAtY = 0.f;
+    float m_restoreLookAtZ = 0.f;
 };
 
