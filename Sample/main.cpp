@@ -151,11 +151,22 @@ private:
 
 class SoundEffect : public ISoundEffect
 {
-    virtual void PlayMove() override
+    void Play(const std::string& filename, const int volume, const bool loop) override
     {
-        PlaySound("cursor_move.wav", NULL, SND_FILENAME | SND_ASYNC);
+        if (loop)
+        {
+            PlaySound(filename.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+        }
+        else
+        {
+            PlaySound(filename.c_str(), NULL, SND_FILENAME | SND_ASYNC);
+        }
     }
-    virtual void Init() override
+    void Stop()
+    {
+        PlaySound(NULL, NULL, 0);
+    }
+    void Init() override
     {
 
     }

@@ -65,7 +65,7 @@ std::vector<Action> CutScene::CreateActionList()
     for (std::size_t i = 1; i < vss.size(); ++i)
     {
         Action action;
-        action.Init(vss.at(i), m_modelCreator, m_font, m_sprTextBack, m_camera);
+        action.Init(vss.at(i), m_modelCreator, m_font, m_sprTextBack, m_SE, m_camera);
         actionList.push_back(action);
     }
     return actionList;

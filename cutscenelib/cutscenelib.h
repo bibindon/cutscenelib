@@ -23,8 +23,8 @@ public:
 class ISoundEffect
 {
 public:
-    // TODO PlayMove‚Å‚Í‚È‚¢‹C‚ª‚·‚é
-    virtual void PlayMove() = 0;
+    virtual void Play(const std::string& filename, const int volume = 100, const bool loop = false) = 0;
+    virtual void Stop() = 0;
     virtual void Init() = 0;
     virtual ~ISoundEffect() {};
 };
@@ -59,6 +59,7 @@ public:
               IModelCreator* modelCreator,
               IFont* font,
               ISprite* sprTextBack,
+              ISoundEffect* SE,
               ICamera* camera);
     void Update(const int elapsed);
     void Render(const int elapsed);
@@ -160,6 +161,8 @@ private:
     {
         std::string m_fileName;
         int m_volume = 0;
+        bool m_loop = false;
+        bool m_Done = false;
     };
 
     stCamera m_stCamera;
@@ -171,6 +174,7 @@ private:
 
     IFont* m_font = nullptr;
     ISprite* m_sprTextBack = nullptr;
+    ISoundEffect* m_SE = nullptr;
     ICamera* m_camera = nullptr;
 };
 

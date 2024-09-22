@@ -4,10 +4,12 @@ void Action::Init(const std::vector<std::string>& scriptLine,
                   IModelCreator* modelCreator,
                   IFont* font,
                   ISprite* sprTextBack,
+                  ISoundEffect* SE,
                   ICamera* camera)
 {
     m_font = font;
     m_sprTextBack = sprTextBack;
+    m_SE = SE;
     m_camera = camera;
 
     m_id    = std::atoi(scriptLine.at(0).c_str());
@@ -118,6 +120,15 @@ void Action::Init(const std::vector<std::string>& scriptLine,
         m_stText.m_text = vs;
         m_stText.m_textShow.resize(3);
     }
+    else if (m_eType == eType::SE)
+    {
+        m_stSE.m_fileName = scriptLine.at(4);
+        m_stSE.m_volume = std::atoi(scriptLine.at(5).c_str());
+        if (scriptLine.at(6) == "LOOP")
+        {
+            m_stSE.m_loop = true;
+        }
+    }
 }
 
 void Action::Update(const int elapsed)
@@ -126,13 +137,13 @@ void Action::Update(const int elapsed)
 //    work += "\n";
 //    OutputDebugString(work.c_str());
 
-    if (m_end != -1)
-    {
-        if (elapsed < m_start || m_end <= elapsed) {
-            return;
-        }
-    }
-    else
+//    if (m_end != -1)
+//    {
+//        if (elapsed < m_start || m_end <= elapsed) {
+//            return;
+//        }
+//    }
+//    else
     {
         if (elapsed < m_start) {
             return;
@@ -141,159 +152,169 @@ void Action::Update(const int elapsed)
 
     if (m_eType == eType::CAMERA)
     {
-        // progressは0.f ~ 1.f
-        float progress = (float)(elapsed - m_start) / (m_end - m_start) ;
-        float workEyeX = 0.f;
-        float workEyeY = 0.f;
-        float workEyeZ = 0.f;
-        float workAtX = 0.f;
-        float workAtY = 0.f;
-        float workAtZ = 0.f;
-        workEyeX = m_stCamera.m_startPosX + (m_stCamera.m_endPosX - m_stCamera.m_startPosX) * progress;
-        workEyeY = m_stCamera.m_startPosY + (m_stCamera.m_endPosY - m_stCamera.m_startPosY) * progress;
-        workEyeZ = m_stCamera.m_startPosZ + (m_stCamera.m_endPosZ - m_stCamera.m_startPosZ) * progress;
-        workAtX = m_stCamera.m_startAtX + (m_stCamera.m_endAtX - m_stCamera.m_startAtX) * progress;
-        workAtY = m_stCamera.m_startAtY + (m_stCamera.m_endAtY - m_stCamera.m_startAtY) * progress;
-        workAtZ = m_stCamera.m_startAtZ + (m_stCamera.m_endAtZ - m_stCamera.m_startAtZ) * progress;
-        m_camera->SetPosAndRot(workEyeX, workEyeY, workEyeZ, workAtX, workAtY, workAtZ);
+        if (elapsed < m_end)
+        {
+            // progressは0.f ~ 1.f
+            float progress = (float)(elapsed - m_start) / (m_end - m_start) ;
+            float workEyeX = 0.f;
+            float workEyeY = 0.f;
+            float workEyeZ = 0.f;
+            float workAtX = 0.f;
+            float workAtY = 0.f;
+            float workAtZ = 0.f;
+            workEyeX = m_stCamera.m_startPosX + (m_stCamera.m_endPosX - m_stCamera.m_startPosX) * progress;
+            workEyeY = m_stCamera.m_startPosY + (m_stCamera.m_endPosY - m_stCamera.m_startPosY) * progress;
+            workEyeZ = m_stCamera.m_startPosZ + (m_stCamera.m_endPosZ - m_stCamera.m_startPosZ) * progress;
+            workAtX = m_stCamera.m_startAtX + (m_stCamera.m_endAtX - m_stCamera.m_startAtX) * progress;
+            workAtY = m_stCamera.m_startAtY + (m_stCamera.m_endAtY - m_stCamera.m_startAtY) * progress;
+            workAtZ = m_stCamera.m_startAtZ + (m_stCamera.m_endAtZ - m_stCamera.m_startAtZ) * progress;
+            m_camera->SetPosAndRot(workEyeX, workEyeY, workEyeZ, workAtX, workAtY, workAtZ);
+        }
     }
     else if (m_eType == eType::MODEL_POS)
     {
-        if (m_stModelPos.m_Done == false)
+        if (elapsed < m_end)
         {
-            m_stModelPos.m_Done = true;
-            m_stModelPos.m_model->SetPosAndRot(m_stModelPos.m_PosX,
-                                               m_stModelPos.m_PosY,
-                                               m_stModelPos.m_PosZ,
-                                               m_stModelPos.m_RotX,
-                                               m_stModelPos.m_RotY,
-                                               m_stModelPos.m_RotZ);
+            if (m_stModelPos.m_Done == false)
+            {
+                m_stModelPos.m_Done = true;
+                m_stModelPos.m_model->SetPosAndRot(m_stModelPos.m_PosX,
+                                                   m_stModelPos.m_PosY,
+                                                   m_stModelPos.m_PosZ,
+                                                   m_stModelPos.m_RotX,
+                                                   m_stModelPos.m_RotY,
+                                                   m_stModelPos.m_RotZ);
+            }
         }
     }
     else if (m_eType == eType::MODEL_MOVE)
     {
-        float progress = (float)(elapsed - m_start) / (m_end - m_start) ;
-        float workPosX = 0.f;
-        float workPosY = 0.f;
-        float workPosZ = 0.f;
-        float workRotX = 0.f;
-        float workRotY = 0.f;
-        float workRotZ = 0.f;
-        workPosX = m_stModelMove.m_startPosX + (m_stModelMove.m_endPosX - m_stModelMove.m_startPosX) * progress;
-        workPosY = m_stModelMove.m_startPosY + (m_stModelMove.m_endPosY - m_stModelMove.m_startPosY) * progress;
-        workPosZ = m_stModelMove.m_startPosZ + (m_stModelMove.m_endPosZ - m_stModelMove.m_startPosZ) * progress;
-        workRotX = m_stModelMove.m_startRotX + (m_stModelMove.m_endRotX - m_stModelMove.m_startRotX) * progress;
-        workRotY = m_stModelMove.m_startRotY + (m_stModelMove.m_endRotY - m_stModelMove.m_startRotY) * progress;
-        workRotZ = m_stModelMove.m_startRotZ + (m_stModelMove.m_endRotZ - m_stModelMove.m_startRotZ) * progress;
-        m_stModelMove.m_model->SetPosAndRot(workPosX, workPosY, workPosZ,
-                                            workRotX, workRotY, workRotZ);
+        if (elapsed < m_end)
+        {
+            float progress = (float)(elapsed - m_start) / (m_end - m_start) ;
+            float workPosX = 0.f;
+            float workPosY = 0.f;
+            float workPosZ = 0.f;
+            float workRotX = 0.f;
+            float workRotY = 0.f;
+            float workRotZ = 0.f;
+            workPosX = m_stModelMove.m_startPosX + (m_stModelMove.m_endPosX - m_stModelMove.m_startPosX) * progress;
+            workPosY = m_stModelMove.m_startPosY + (m_stModelMove.m_endPosY - m_stModelMove.m_startPosY) * progress;
+            workPosZ = m_stModelMove.m_startPosZ + (m_stModelMove.m_endPosZ - m_stModelMove.m_startPosZ) * progress;
+            workRotX = m_stModelMove.m_startRotX + (m_stModelMove.m_endRotX - m_stModelMove.m_startRotX) * progress;
+            workRotY = m_stModelMove.m_startRotY + (m_stModelMove.m_endRotY - m_stModelMove.m_startRotY) * progress;
+            workRotZ = m_stModelMove.m_startRotZ + (m_stModelMove.m_endRotZ - m_stModelMove.m_startRotZ) * progress;
+            m_stModelMove.m_model->SetPosAndRot(workPosX, workPosY, workPosZ,
+                                                workRotX, workRotY, workRotZ);
+        }
     }
     else if (m_eType == eType::MODEL_ANIM)
     {
-        if (m_stModelAnim.m_Done == false)
+        if (elapsed < m_end)
         {
-            m_stModelAnim.m_Done = true;
-            m_stModelAnim.m_model->SetAnim(m_stModelAnim.m_animName);
+            if (m_stModelAnim.m_Done == false)
+            {
+                m_stModelAnim.m_Done = true;
+                m_stModelAnim.m_model->SetAnim(m_stModelAnim.m_animName);
+            }
         }
     }
     else if (m_eType == eType::TEXT)
     {
-        // 30フレーム経過してから文字の表示を始める
-
-        // 文字送り処理
-        m_stText.m_textShow.at(0).clear();
-        m_stText.m_textShow.at(1).clear();
-        m_stText.m_textShow.at(2).clear();
-        m_stText.m_counter++;
-        if (m_stText.m_counter >= 30)
+        if (elapsed < m_end)
         {
-            m_stText.m_charCount++;
-        }
+            // 30フレーム経過してから文字の表示を始める
 
-        // 一行目
-        if (m_stText.m_charCount < (int)m_stText.m_text.at(0).size())
-        {
-            // マルチバイト文字は1文字で2バイトであることを考慮する
-            if (m_stText.m_charCount % 2 == 0)
+            // 文字送り処理
+            m_stText.m_textShow.at(0).clear();
+            m_stText.m_textShow.at(1).clear();
+            m_stText.m_textShow.at(2).clear();
+            m_stText.m_counter++;
+            if (m_stText.m_counter >= 30)
             {
-                m_stText.m_textShow.at(0) = m_stText.m_text.at(0).substr(0, m_stText.m_charCount);
+                m_stText.m_charCount++;
+            }
+
+            // 一行目
+            if (m_stText.m_charCount < (int)m_stText.m_text.at(0).size())
+            {
+                // マルチバイト文字は1文字で2バイトであることを考慮する
+                if (m_stText.m_charCount % 2 == 0)
+                {
+                    m_stText.m_textShow.at(0) = m_stText.m_text.at(0).substr(0, m_stText.m_charCount);
+                }
+                else
+                {
+                    m_stText.m_textShow.at(0) = m_stText.m_text.at(0).substr(0, m_stText.m_charCount - 1);
+                }
             }
             else
             {
-                m_stText.m_textShow.at(0) = m_stText.m_text.at(0).substr(0, m_stText.m_charCount - 1);
+                m_stText.m_textShow.at(0) = m_stText.m_text.at(0);
             }
-        }
-        else
-        {
-            m_stText.m_textShow.at(0) = m_stText.m_text.at(0);
-        }
 
-        int total = 0;
+            int total = 0;
 
-        // 二行目
-        total = m_stText.m_text.at(0).size() + m_stText.m_text.at(1).size();
-        int secondLineCount = m_stText.m_charCount - m_stText.m_text.at(0).size();
-        if (m_stText.m_charCount < total)
-        {
-            if (secondLineCount >= 0)
+            // 二行目
+            total = m_stText.m_text.at(0).size() + m_stText.m_text.at(1).size();
+            int secondLineCount = m_stText.m_charCount - m_stText.m_text.at(0).size();
+            if (m_stText.m_charCount < total)
             {
-                // マルチバイト文字は1文字で2バイトであることを考慮する
-                if (secondLineCount % 2 == 0)
+                if (secondLineCount >= 0)
                 {
-                    m_stText.m_textShow.at(1) = m_stText.m_text.at(1).substr(0, secondLineCount);
-                }
-                else
-                {
-                    m_stText.m_textShow.at(1) = m_stText.m_text.at(1).substr(0, secondLineCount - 1);
+                    // マルチバイト文字は1文字で2バイトであることを考慮する
+                    if (secondLineCount % 2 == 0)
+                    {
+                        m_stText.m_textShow.at(1) = m_stText.m_text.at(1).substr(0, secondLineCount);
+                    }
+                    else
+                    {
+                        m_stText.m_textShow.at(1) = m_stText.m_text.at(1).substr(0, secondLineCount - 1);
+                    }
                 }
             }
-        }
-        else
-        {
-            m_stText.m_textShow.at(1) = m_stText.m_text.at(1);
-        }
-
-        // 三行目
-        total = m_stText.m_text.at(0).size() + m_stText.m_text.at(1).size()
-                                             + m_stText.m_text.at(2).size();
-
-        int thirdLineCount = m_stText.m_charCount - m_stText.m_text.at(0).size()
-                                                     - m_stText.m_text.at(1).size();
-        if (m_stText.m_charCount < total)
-        {
-            if (thirdLineCount >= 0)
+            else
             {
-                // マルチバイト文字は1文字で2バイトであることを考慮する
-                if (thirdLineCount % 2 == 0)
+                m_stText.m_textShow.at(1) = m_stText.m_text.at(1);
+            }
+
+            // 三行目
+            total = m_stText.m_text.at(0).size() + m_stText.m_text.at(1).size()
+                                                 + m_stText.m_text.at(2).size();
+
+            int thirdLineCount = m_stText.m_charCount - m_stText.m_text.at(0).size()
+                                                         - m_stText.m_text.at(1).size();
+            if (m_stText.m_charCount < total)
+            {
+                if (thirdLineCount >= 0)
                 {
-                    m_stText.m_textShow.at(2) = m_stText.m_text.at(2).substr(0, thirdLineCount);
-                }
-                else
-                {
-                    m_stText.m_textShow.at(2) = m_stText.m_text.at(2).substr(0, thirdLineCount - 1);
+                    // マルチバイト文字は1文字で2バイトであることを考慮する
+                    if (thirdLineCount % 2 == 0)
+                    {
+                        m_stText.m_textShow.at(2) = m_stText.m_text.at(2).substr(0, thirdLineCount);
+                    }
+                    else
+                    {
+                        m_stText.m_textShow.at(2) = m_stText.m_text.at(2).substr(0, thirdLineCount - 1);
+                    }
                 }
             }
+            else
+            {
+                m_stText.m_textShow.at(2) = m_stText.m_text.at(2);
+            }
         }
-        else
-        {
-            m_stText.m_textShow.at(2) = m_stText.m_text.at(2);
-        }
+    }
+    else if (m_eType == eType::SE)
+    {
+        // do nothing
     }
 }
 
 void Action::Render(const int elapsed)
 {
-    if (m_end != -1)
-    {
-        if (elapsed < m_start || m_end <= elapsed) {
-            return;
-        }
-    }
-    else
-    {
-        if (elapsed < m_start) {
-            return;
-        }
+    if (elapsed < m_start) {
+        return;
     }
     if (m_eType == eType::CAMERA)
     {
@@ -313,20 +334,38 @@ void Action::Render(const int elapsed)
     }
     else if (m_eType == eType::TEXT)
     {
-        m_sprTextBack->DrawImage(0, 0);
-        if (m_stText.m_textShow.size() >= 1)
+        if (elapsed < m_end)
         {
-            m_font->DrawText_(m_stText.m_textShow.at(0), 100, 730);
-        }
+            m_sprTextBack->DrawImage(0, 0);
+            if (m_stText.m_textShow.size() >= 1)
+            {
+                m_font->DrawText_(m_stText.m_textShow.at(0), 100, 730);
+            }
 
-        if (m_stText.m_textShow.size() >= 2)
-        {
-            m_font->DrawText_(m_stText.m_textShow.at(1), 100, 780);
-        }
+            if (m_stText.m_textShow.size() >= 2)
+            {
+                m_font->DrawText_(m_stText.m_textShow.at(1), 100, 780);
+            }
 
-        if (m_stText.m_textShow.size() >= 3)
+            if (m_stText.m_textShow.size() >= 3)
+            {
+                m_font->DrawText_(m_stText.m_textShow.at(2), 100, 830);
+            }
+        }
+    }
+    else if(m_eType == eType::SE)
+    {
+        if (elapsed < m_end)
         {
-            m_font->DrawText_(m_stText.m_textShow.at(2), 100, 830);
+            if (m_stSE.m_Done == false)
+            {
+                m_stSE.m_Done = true;
+                m_SE->Play(m_stSE.m_fileName, m_stSE.m_volume, m_stSE.m_loop);
+            }
+        }
+        else
+        {
+            m_SE->Stop();
         }
     }
 }
