@@ -36,7 +36,6 @@ CutScene*               g_talk = nullptr;
 class Sprite : public ISprite
 {
 public:
-
     Sprite(LPDIRECT3DDEVICE9 dev)
         : m_pD3DDevice(dev)
     {
@@ -96,7 +95,6 @@ public:
     }
 
 private:
-
     LPDIRECT3DDEVICE9 m_pD3DDevice = NULL;
     LPD3DXSPRITE m_D3DSprite = NULL;
     LPDIRECT3DTEXTURE9 m_pD3DTexture = NULL;
@@ -107,7 +105,6 @@ private:
 class Font : public IFont
 {
 public:
-
     Font(LPDIRECT3DDEVICE9 pD3DDevice)
         : m_pD3DDevice(pD3DDevice)
     {
@@ -144,7 +141,6 @@ public:
     }
 
 private:
-
     LPDIRECT3DDEVICE9 m_pD3DDevice = NULL;
     LPD3DXFONT m_pFont = NULL;
 };
@@ -167,7 +163,7 @@ class Camera : public ICamera
 public:
 
     virtual void SetPosAndRot(const float posX, const float posY, const float posZ,
-                              const float AtX, const float AtY, const float AtZ)
+                              const float AtX,  const float AtY,  const float AtZ)
     {
         g_eyePos    = D3DXVECTOR3(posX, posY, posZ);
         g_lookAtPos = D3DXVECTOR3(AtX, AtY, AtZ);
@@ -175,29 +171,71 @@ public:
 
 };
 
-class Model : public IModel
+class MeshModel : public IModel
 {
 public:
-    Model(const D3DXVECTOR3& startEye, const D3DXVECTOR3& startAt,
-          const D3DXVECTOR3& endEye,   const D3DXVECTOR3& endAt)
-        : m_startEye(startEye), m_startAt(startAt)
-        , m_endEye(endEye),     m_endAt(endAt)
+    MeshModel(Mesh* mesh)
+        : m_mesh(mesh)
     {
     }
 
-    // progress‚Í 0 ~ 100‚ª—^‚¦‚ç‚ê‚éB
-    virtual void SetPosAndRot(const int progress)
+    void SetPosAndRot(const float posX, const float posY, const float posZ,
+                      const float AtX,  const float AtY,  const float AtZ) override
     {
+        m_mesh->SetPos(D3DXVECTOR3(posX, posY, posZ));
+        m_mesh->SetRot(D3DXVECTOR3(AtX, AtY, AtZ));
+    }
+
+    virtual void SetAnim(const std::string& animName)
+    {
+        // do nothing
+    }
+
+private:
+    Mesh* m_mesh = nullptr;
+};
+
+class AnimModel : public IModel
+{
+public:
+    AnimModel(AnimMesh* animMesh)
+        : m_animMesh(animMesh)
+    {
+    }
+
+    void SetPosAndRot(const float posX, const float posY, const float posZ,
+                      const float AtX,  const float AtY,  const float AtZ) override
+    {
+        m_animMesh->SetPos(D3DXVECTOR3(posX, posY, posZ));
+        m_animMesh->SetRotate(D3DXVECTOR3(AtX, AtY, AtZ));
+    }
+
+    // progress‚Í 0 ~ 100‚ª—^‚¦‚ç‚ê‚é ?
+    virtual void SetAnim(const std::string& animName)
+    {
+//        g_AnimMesh->SetAnim(D3DXVECTOR3(posX, posY, posZ));
 //        g_eyePos = m_startEye;
 //        g_lookAtPos = m_startAt;
     }
 
 private:
+    AnimMesh* m_animMesh = nullptr;
+};
 
-    D3DXVECTOR3 m_startEye;
-    D3DXVECTOR3 m_startAt;
-    D3DXVECTOR3 m_endEye;
-    D3DXVECTOR3 m_endAt;
+class ModelCreator : public IModelCreator
+{
+public:
+
+    IModel* CreateModel(const std::string& xfilename) override
+    {
+        IModel* model = nullptr;
+        if (xfilename == "hoshiman.x")
+        {
+            model = new AnimModel(g_AnimMesh);
+        }
+        return model;
+    }
+
 };
 
 D3DXMATRIX GetViewMatrix()
@@ -231,6 +269,7 @@ void StartCutScene()
     Sprite* sprTextBack = new Sprite(g_D3DDevice);
     Sprite* sprFade = new Sprite(g_D3DDevice);
     IFont* pFont = new Font(g_D3DDevice);
+    IModelCreator* modelCreator = new ModelCreator();
     ICamera* pCamera = new Camera();
 
     if (g_talk != nullptr)
@@ -240,7 +279,7 @@ void StartCutScene()
         g_talk = nullptr;
     }
     g_talk = new CutScene();
-    g_talk->Init("cutsceneSample.csv", pFont, pSE, sprTextBack, sprFade, pCamera,
+    g_talk->Init("cutsceneSample.csv", pFont, pSE, sprTextBack, sprFade, modelCreator, pCamera,
                  g_eyePos.x,    g_eyePos.y,    g_eyePos.z,
                  g_lookAtPos.x, g_lookAtPos.y, g_lookAtPos.z);
 }

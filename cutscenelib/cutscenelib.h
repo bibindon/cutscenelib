@@ -33,33 +33,41 @@ class ICamera
 {
 public:
     virtual void SetPosAndRot(const float posX, const float posY, const float posZ,
-                              const float AtX, const float AtY, const float AtZ) = 0;
+                              const float AtX,  const float AtY,  const float AtZ) = 0;
     virtual ~ICamera() {};
 };
 
 class IModel
 {
 public:
-    virtual void SetPosAndRot(const int progress) = 0;
+    virtual void SetPosAndRot(const float posX, const float posY, const float posZ,
+                              const float AtX,  const float AtY,  const float AtZ) = 0;
     virtual void SetAnim(const std::string& animName) = 0;
     virtual ~IModel() {};
+};
+
+class IModelCreator
+{
+public:
+    virtual IModel* CreateModel(const std::string& xfilename) = 0;
 };
 
 class Action
 {
 public:
-
-    void Init(const std::vector<std::string>& scriptLine, ICamera* camera);
+    void Init(const std::vector<std::string>& scriptLine,
+              IModelCreator* modelCreator,
+              ICamera* camera);
     void Update(const int elapsed);
     void Render();
     void Finalize();
 
 private:
-
     enum class eType
     {
         CAMERA,
         MODEL_POS,
+        MODEL_MOVE,
         MODEL_ANIM,
         TEXT,
         SE,
@@ -98,13 +106,16 @@ private:
         float m_RotX = 0.f;
         float m_RotY = 0.f;
         float m_RotZ = 0.f;
+
+        bool m_Done = false;
+
+        IModel* m_model = nullptr;
     };
 
-    struct stModelAnim
+    struct stModelMove
     {
         std::string m_XFileName;
         int m_subId = 0;
-        std::string m_animName;
 
         float m_startPosX = 0.f;
         float m_startPosY = 0.f;
@@ -121,6 +132,13 @@ private:
         float m_endRotZ = 0.f;
     };
 
+    struct stModelAnim
+    {
+        std::string m_XFileName;
+        int m_subId = 0;
+        std::string m_animName;
+    };
+
     struct stText
     {
         std::string m_text;
@@ -134,6 +152,7 @@ private:
 
     stCamera m_stCamera;
     stModelPos m_stModelPos;
+    stModelPos m_stModelMove;
     stModelAnim m_stModelAnim;
     stText m_stText;
     stSE m_stSE;
@@ -151,6 +170,7 @@ public:
         ISoundEffect* SE,
         ISprite* sprTextBack,
         ISprite* sprFade,
+        IModelCreator* modelCreator,
         ICamera* restore,
         const float eyeX,
         const float eyeY,
@@ -188,6 +208,7 @@ private:
     const int WAIT_NEXT_FRAME = 60;
     int m_waitNextCount = 0;
 
+    IModelCreator* m_modelCreator = nullptr;
     ICamera* m_camera = nullptr;
 
     float m_restoreEyeX    = 0.f;
@@ -197,4 +218,6 @@ private:
     float m_restoreLookAtY = 0.f;
     float m_restoreLookAtZ = 0.f;
 };
+
+std::vector<std::string> split(const std::string& s, char delim);
 

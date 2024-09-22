@@ -8,9 +8,7 @@
 
 class Mesh
 {
-
 public:
-
     Mesh(const LPDIRECT3DDEVICE9 D3DDevice,
          const std::string&,
          const D3DXVECTOR3&,
@@ -18,9 +16,10 @@ public:
          const float&);
     ~Mesh();
     void Render(const D3DXMATRIX& view, const D3DXMATRIX& proj);
+    void SetPos(const D3DXVECTOR3& arg);
+    void SetRot(const D3DXVECTOR3& arg);
 
 private:
-
     const std::string SHADER_FILENAME = "meshShader.fx";
     std::string m_meshName = "";
 

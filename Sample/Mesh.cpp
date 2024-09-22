@@ -191,3 +191,13 @@ void Mesh::Render(const D3DXMATRIX& view, const D3DXMATRIX& proj)
     m_D3DEffect->End();
 }
 
+void Mesh::SetPos(const D3DXVECTOR3& arg)
+{
+    m_pos = arg;
+}
+
+void Mesh::SetRot(const D3DXVECTOR3& arg)
+{
+    m_rotate = arg;
+}
+
