@@ -98,6 +98,7 @@ private:
     struct stModelPos
     {
         std::string m_XFileName;
+        IModel* m_model = nullptr;
         int m_subId = 0;
 
         float m_PosX = 0.f;
@@ -108,13 +109,12 @@ private:
         float m_RotZ = 0.f;
 
         bool m_Done = false;
-
-        IModel* m_model = nullptr;
     };
 
     struct stModelMove
     {
         std::string m_XFileName;
+        IModel* m_model = nullptr;
         int m_subId = 0;
 
         float m_startPosX = 0.f;
@@ -130,15 +130,16 @@ private:
         float m_endRotX = 0.f;
         float m_endRotY = 0.f;
         float m_endRotZ = 0.f;
-
-        IModel* m_model = nullptr;
     };
 
     struct stModelAnim
     {
         std::string m_XFileName;
+        IModel* m_model = nullptr;
         int m_subId = 0;
         std::string m_animName;
+
+        bool m_Done = false;
     };
 
     struct stText

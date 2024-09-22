@@ -198,49 +198,27 @@ void AnimMesh::ReleaseMeshAllocator(const LPD3DXFRAME frame)
 
 void AnimMesh::SetAnim(const std::string& animSet)
 {
-    std::size_t _index = -1;
-    for (std::size_t i = 0; i < m_animSets.size(); ++i)
-    {
-        if (m_animSets.at(i)->GetName() == animSet)
-        {
-            _index = i;
-            break;
-        }
-    }
-
-    if (_index == -1)
-    {
-        return;
-    }
-
-    m_D3DAnimController->SetTrackAnimationSet(0, m_animSets.at(_index));
-    m_D3DAnimController->SetTrackPosition(0, -1.001f / 60);
-    m_animTime = 0.f;
-
     if (m_animConfigMap.find(animSet) == m_animConfigMap.end())
     {
         return;
     }
 
-    if (animSet != m_defaultAnim && !m_animConfigMap.at(animSet).loop)
-    {
-        m_isPlaying = true;
-        m_currentAnim = animSet;
-    }
+    m_currentAnim = animSet;
+    m_animTime = 0.f;
+    m_isPlaying = true;
 };
 
 void AnimMesh::Update()
 {
     m_animTime += 1.f / 60;
     m_D3DAnimController->SetTrackPosition(0, 0.f);
-    m_D3DAnimController->AdvanceTime(m_animTime, nullptr);
+    m_D3DAnimController->AdvanceTime((DOUBLE)m_animConfigMap[m_currentAnim].startPos + m_animTime, nullptr);
     if (m_isPlaying)
     {
         float duration = m_animConfigMap.at(m_currentAnim).duration;
         if (m_animTime + 0.001f >= duration)
         {
             SetAnim(m_defaultAnim);
-            m_isPlaying = false;
             m_animTime = 0;
         }
     }
@@ -254,9 +232,10 @@ void AnimMesh::SetDefaultAnim(const std::string& animation_name)
 
 void AnimMesh::SetAnimConfig(const std::string& animName,
                              const bool loop,
+                             const float startPos,
                              const float duration)
 {
-    m_animConfigMap[animName] = AnimConfig { loop, duration };
+    m_animConfigMap[animName] = AnimConfig { loop, startPos, duration };
 }
 
 bool AnimMesh::isPlaying()

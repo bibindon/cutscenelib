@@ -100,6 +100,12 @@ void Action::Init(const std::vector<std::string>& scriptLine,
         m_stModelMove.m_endRotY = (float)std::atof(vs.at(1).c_str());
         m_stModelMove.m_endRotZ = (float)std::atof(vs.at(2).c_str());
     }
+    else if (m_eType == eType::MODEL_ANIM)
+    {
+        m_stModelAnim.m_model = modelCreator->CreateModel(scriptLine.at(4));
+        m_stModelAnim.m_subId = std::atoi(scriptLine.at(5).c_str());
+        m_stModelAnim.m_animName = scriptLine.at(6).c_str();
+    }
 }
 
 void Action::Update(const int elapsed)
@@ -144,11 +150,6 @@ void Action::Update(const int elapsed)
         if (m_stModelPos.m_Done == false)
         {
             m_stModelPos.m_Done = true;
-            // TODO
-            if (m_stModelPos.m_model == nullptr)
-            {
-                return;
-            }
             m_stModelPos.m_model->SetPosAndRot(m_stModelPos.m_PosX,
                                                m_stModelPos.m_PosY,
                                                m_stModelPos.m_PosZ,
@@ -159,11 +160,6 @@ void Action::Update(const int elapsed)
     }
     else if (m_eType == eType::MODEL_MOVE)
     {
-        // TODO
-        if (m_stModelMove.m_model == nullptr)
-        {
-            return;
-        }
         float progress = (float)(elapsed - m_start) / (m_end - m_start) ;
         float workPosX = 0.f;
         float workPosY = 0.f;
@@ -180,6 +176,14 @@ void Action::Update(const int elapsed)
         m_stModelMove.m_model->SetPosAndRot(workPosX, workPosY, workPosZ,
                                             workRotX, workRotY, workRotZ);
     }
+    else if (m_eType == eType::MODEL_ANIM)
+    {
+        if (m_stModelAnim.m_Done == false)
+        {
+            m_stModelAnim.m_Done = true;
+            m_stModelAnim.m_model->SetAnim(m_stModelAnim.m_animName);
+        }
+    }
 }
 
 void Action::Render()
@@ -193,6 +197,10 @@ void Action::Render()
         // do nothing
     }
     else if(m_eType == eType::MODEL_MOVE)
+    {
+        // do nothing
+    }
+    else if(m_eType == eType::MODEL_ANIM)
     {
         // do nothing
     }

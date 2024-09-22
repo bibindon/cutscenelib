@@ -192,6 +192,7 @@ public:
     virtual void SetAnim(const std::string& animName)
     {
         // do nothing
+        throw std::exception("アニメがないモデルでアニメを実行しようとした");
     }
 
 private:
@@ -216,9 +217,7 @@ public:
     // progressは 0 ~ 100が与えられる ?
     virtual void SetAnim(const std::string& animName)
     {
-//        g_AnimMesh1->SetAnim(D3DXVECTOR3(posX, posY, posZ));
-//        g_eyePos = m_startEye;
-//        g_lookAtPos = m_startAt;
+        m_animMesh->SetAnim(animName);
     }
 
 private:
@@ -311,6 +310,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case 'Q':
         {
             PostQuitMessage(0);
+            break;
+        }
+        case 'A':
+        {
+            g_AnimMesh1->SetAnim("Dead");
             break;
         }
         case 'M':
@@ -422,6 +426,14 @@ void Init(const HINSTANCE& hInstance)
                                D3DXVECTOR3(0, 0, 0),
                                D3DXVECTOR3(0, 0, 0),
                                0.5f);
+    g_AnimMesh1->SetAnimConfig("Idle",    true,  0.0f, 0.5f);
+    g_AnimMesh1->SetAnimConfig("Walk",    false, 1.0f, 1.0f);
+    g_AnimMesh1->SetAnimConfig("Attack",  false, 1.0f, 1.0f);
+    g_AnimMesh1->SetAnimConfig("Damaged", false, 3.0f, 0.5f);
+    g_AnimMesh1->SetAnimConfig("Dead",    false, 3.5f, 0.5f);
+    g_AnimMesh1->SetAnimConfig("Jump",    false, 5.0f, 2.0f);
+    g_AnimMesh1->SetAnim("Idle");
+    g_AnimMesh1->SetDefaultAnim("Idle");
 
     g_AnimMesh2 = new AnimMesh(g_D3DDevice,
                                "rippoutai.x",

@@ -30,6 +30,7 @@ public:
     void SetDefaultAnim(const std::string& animationName);
     void SetAnimConfig(const std::string& animationName,
                        const bool loop,
+                       const float startPos,
                        const float duration);
     bool isPlaying();
 private:
@@ -68,6 +69,7 @@ private:
     struct AnimConfig
     {
         bool loop = true;
+        float startPos = 0.0f;
         float duration = 1.0f;
     };
     std::unordered_map<std::string, AnimConfig> m_animConfigMap;
