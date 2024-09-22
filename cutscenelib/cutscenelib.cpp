@@ -97,8 +97,11 @@ void CutScene::Render()
 
 void CutScene::Finalize()
 {
-    m_camera->SetPosAndRot(m_restoreEyeX,    m_restoreEyeY,    m_restoreEyeZ,
-                           m_restoreLookAtX, m_restoreLookAtY, m_restoreEyeZ);
+    if (m_camera != nullptr)
+    {
+        m_camera->SetPosAndRot(m_restoreEyeX,    m_restoreEyeY,    m_restoreEyeZ,
+                               m_restoreLookAtX, m_restoreLookAtY, m_restoreEyeZ);
+    }
 
     delete m_sprTextBack;
     m_sprTextBack = nullptr;

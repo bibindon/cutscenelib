@@ -20,7 +20,10 @@
 #include <string>
 #include <d3dx9.h>
 
-const std::string   TITLE = "simple anim mesh";
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 LPDIRECT3DDEVICE9   g_D3DDevice;
 LPDIRECT3D9         g_D3D;
 Mesh*               g_Mesh { nullptr };
@@ -34,7 +37,7 @@ D3DXVECTOR3         g_lookAtPos { 0.0f, 1.0f, 0.0f };
 float               g_viewAngle { D3DX_PI / 4 };
 float               g_radian { D3DX_PI * 3 / 4 };
 
-CutScene*               g_talk = nullptr;
+CutScene*           g_cutscene = nullptr;
 
 class Sprite : public ISprite
 {
@@ -176,8 +179,8 @@ class Camera : public ICamera
 {
 public:
 
-    virtual void SetPosAndRot(const float posX, const float posY, const float posZ,
-                              const float AtX,  const float AtY,  const float AtZ)
+    void SetPosAndRot(const float posX, const float posY, const float posZ,
+                      const float AtX,  const float AtY,  const float AtZ) override
     {
         g_eyePos    = D3DXVECTOR3(posX, posY, posZ);
         g_lookAtPos = D3DXVECTOR3(AtX, AtY, AtZ);
@@ -293,14 +296,14 @@ void StartCutScene()
     IModelCreator* modelCreator = new ModelCreator();
     ICamera* pCamera = new Camera();
 
-    if (g_talk != nullptr)
+    if (g_cutscene != nullptr)
     {
-        g_talk->Finalize();
-        delete g_talk;
-        g_talk = nullptr;
+        g_cutscene->Finalize();
+        delete g_cutscene;
+        g_cutscene = nullptr;
     }
-    g_talk = new CutScene();
-    g_talk->Init("cutsceneSample.csv", pFont, pSE, sprTextBack, sprFade, modelCreator, pCamera,
+    g_cutscene = new CutScene();
+    g_cutscene->Init("cutsceneSample.csv", pFont, pSE, sprTextBack, sprFade, modelCreator, pCamera,
                  g_eyePos.x,    g_eyePos.y,    g_eyePos.z,
                  g_lookAtPos.x, g_lookAtPos.y, g_lookAtPos.z);
 }
@@ -342,6 +345,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void Init(const HINSTANCE& hInstance)
 {
+    const std::string   TITLE = "simple anim mesh";
     WNDCLASSEX wcex = { sizeof(WNDCLASSEX),
                         CS_HREDRAW | CS_VREDRAW,
                         WndProc,
@@ -469,8 +473,11 @@ void Finalize()
     SAFE_DELETE(g_AnimMesh3);
     SAFE_RELEASE(g_D3DDevice);
     SAFE_RELEASE(g_D3D);
-    g_talk->Finalize();
-    SAFE_DELETE(g_talk);
+    if (g_cutscene != nullptr)
+    {
+        g_cutscene->Finalize();
+        SAFE_DELETE(g_cutscene);
+    }
 }
 
 int MainLoop()
@@ -487,13 +494,13 @@ int MainLoop()
 
         Update();
 
-        if (g_talk != nullptr)
+        if (g_cutscene != nullptr)
         {
-            bool finish = g_talk->Update();
+            bool finish = g_cutscene->Update();
             if (finish)
             {
-                g_talk->Finalize();
-                SAFE_DELETE(g_talk);
+                g_cutscene->Finalize();
+                SAFE_DELETE(g_cutscene);
             }
         }
 
@@ -514,9 +521,9 @@ int MainLoop()
         g_AnimMesh2->Render(GetViewMatrix(), GetProjMatrix());
         g_AnimMesh3->Render(GetViewMatrix(), GetProjMatrix());
 
-        if (g_talk != nullptr)
+        if (g_cutscene != nullptr)
         {
-            g_talk->Render();
+            g_cutscene->Render();
         }
 
         g_D3DDevice->EndScene();
@@ -532,6 +539,9 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE, _In_ LPSTR, 
     Init(hInstance);
     MainLoop();
     Finalize();
+
+    _CrtDumpMemoryLeaks();
+
     return 0;
 }
 

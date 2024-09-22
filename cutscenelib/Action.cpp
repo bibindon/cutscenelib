@@ -173,18 +173,15 @@ void Action::Update(const int elapsed)
     }
     else if (m_eType == eType::MODEL_POS)
     {
-        if (elapsed < m_end)
+        if (m_stModelPos.m_Done == false)
         {
-            if (m_stModelPos.m_Done == false)
-            {
-                m_stModelPos.m_Done = true;
-                m_stModelPos.m_model->SetPosAndRot(m_stModelPos.m_PosX,
-                                                   m_stModelPos.m_PosY,
-                                                   m_stModelPos.m_PosZ,
-                                                   m_stModelPos.m_RotX,
-                                                   m_stModelPos.m_RotY,
-                                                   m_stModelPos.m_RotZ);
-            }
+            m_stModelPos.m_Done = true;
+            m_stModelPos.m_model->SetPosAndRot(m_stModelPos.m_PosX,
+                                               m_stModelPos.m_PosY,
+                                               m_stModelPos.m_PosZ,
+                                               m_stModelPos.m_RotX,
+                                               m_stModelPos.m_RotY,
+                                               m_stModelPos.m_RotZ);
         }
     }
     else if (m_eType == eType::MODEL_MOVE)
