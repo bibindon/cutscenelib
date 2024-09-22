@@ -66,8 +66,10 @@ void Action::Init(const std::vector<std::string>& scriptLine,
     }
     else if (m_eType == eType::MODEL_POS)
     {
-        m_stModelPos.m_model = modelCreator->CreateModel(scriptLine.at(4));
-        m_stModelPos.m_subId = std::atoi(scriptLine.at(5).c_str());
+        m_stModelPos.m_XFileName = scriptLine.at(4);
+        m_stModelPos.m_subId     = std::atoi(scriptLine.at(5).c_str());
+        m_stModelPos.m_model     = modelCreator->CreateModel(m_stModelPos.m_XFileName,
+                                                             m_stModelPos.m_subId);
 
         std::vector<std::string> vs;
         vs = split(scriptLine.at(6), ':');
@@ -82,8 +84,10 @@ void Action::Init(const std::vector<std::string>& scriptLine,
     }
     else if (m_eType == eType::MODEL_MOVE)
     {
-        m_stModelMove.m_model = modelCreator->CreateModel(scriptLine.at(4));
-        m_stModelMove.m_subId = std::atoi(scriptLine.at(5).c_str());
+        m_stModelMove.m_XFileName = scriptLine.at(4);
+        m_stModelMove.m_subId     = std::atoi(scriptLine.at(5).c_str());
+        m_stModelMove.m_model     = modelCreator->CreateModel(m_stModelMove.m_XFileName,
+                                                              m_stModelMove.m_subId);
 
         std::vector<std::string> vs;
         vs = split(scriptLine.at(6), ':');
@@ -108,9 +112,11 @@ void Action::Init(const std::vector<std::string>& scriptLine,
     }
     else if (m_eType == eType::MODEL_ANIM)
     {
-        m_stModelAnim.m_model = modelCreator->CreateModel(scriptLine.at(4));
-        m_stModelAnim.m_subId = std::atoi(scriptLine.at(5).c_str());
-        m_stModelAnim.m_animName = scriptLine.at(6).c_str();
+        m_stModelAnim.m_XFileName = scriptLine.at(4);
+        m_stModelAnim.m_subId     = std::atoi(scriptLine.at(5).c_str());
+        m_stModelAnim.m_animName  = scriptLine.at(6).c_str();
+        m_stModelAnim.m_model     = modelCreator->CreateModel(m_stModelAnim.m_XFileName,
+                                                              m_stModelAnim.m_subId);
     }
     else if (m_eType == eType::TEXT)
     {

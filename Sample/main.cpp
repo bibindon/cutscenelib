@@ -241,7 +241,7 @@ class ModelCreator : public IModelCreator
 {
 public:
 
-    IModel* CreateModel(const std::string& xfilename) override
+    IModel* CreateModel(const std::string& xfilename, const int subId) override
     {
         IModel* model = nullptr;
         if (xfilename == "hoshiman.x")
@@ -250,7 +250,14 @@ public:
         }
         else if (xfilename == "rippoutai.x")
         {
-            model = new AnimModel(g_AnimMesh2);
+            if (subId == 1)
+            {
+                model = new AnimModel(g_AnimMesh2);
+            }
+            else if (subId == 2)
+            {
+                model = new AnimModel(g_AnimMesh3);
+            }
         }
         else if (xfilename == "tiger.x")
         {
@@ -441,25 +448,38 @@ void Init(const HINSTANCE& hInstance)
                                D3DXVECTOR3(0, 0, 0),
                                0.5f);
     g_AnimMesh1->SetAnimConfig("Idle",    true,  0.0f, 0.5f);
-    g_AnimMesh1->SetAnimConfig("Walk",    false, 1.0f, 1.0f);
+    g_AnimMesh1->SetAnimConfig("Walk",    true, 1.0f, 1.0f);
     g_AnimMesh1->SetAnimConfig("Attack",  false, 1.0f, 1.0f);
     g_AnimMesh1->SetAnimConfig("Damaged", false, 3.0f, 0.5f);
     g_AnimMesh1->SetAnimConfig("Dead",    false, 3.5f, 0.5f);
     g_AnimMesh1->SetAnimConfig("Jump",    false, 5.0f, 2.0f);
-    g_AnimMesh1->SetAnim("Idle");
     g_AnimMesh1->SetDefaultAnim("Idle");
+    g_AnimMesh1->SetAnim("Idle");
 
     g_AnimMesh2 = new AnimMesh(g_D3DDevice,
                                "rippoutai.x",
                                D3DXVECTOR3(-1, 0, 0),
                                D3DXVECTOR3(0, 0, 0),
                                0.5f);
+    g_AnimMesh2->SetAnimConfig("Idle",    true,  0.5f, 0.5f);
+    g_AnimMesh2->SetAnimConfig("Walk",    true,  0.0f, 0.5f);
+    g_AnimMesh2->SetAnimConfig("Damaged", false, 1.0f, 1.0f);
+    g_AnimMesh2->SetAnimConfig("Attack",  false, 2.0f, 0.5f);
+    g_AnimMesh2->SetDefaultAnim("Idle");
+    g_AnimMesh2->SetAnim("Idle");
+
 
     g_AnimMesh3 = new AnimMesh(g_D3DDevice,
                                "rippoutai.x",
                                D3DXVECTOR3(-3, 0, 0),
                                D3DXVECTOR3(0, 0, 0),
                                0.5f);
+    g_AnimMesh3->SetAnimConfig("Idle",    true,  0.5f, 0.5f);
+    g_AnimMesh3->SetAnimConfig("Walk",    true,  0.0f, 0.5f);
+    g_AnimMesh3->SetAnimConfig("Damaged", false, 1.0f, 1.0f);
+    g_AnimMesh3->SetAnimConfig("Attack",  false, 2.0f, 0.5f);
+    g_AnimMesh3->SetDefaultAnim("Idle");
+    g_AnimMesh3->SetAnim("Idle");
 
     ShowWindow(hWnd, SW_SHOW);
 }

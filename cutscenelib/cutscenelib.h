@@ -49,7 +49,7 @@ public:
 class IModelCreator
 {
 public:
-    virtual IModel* CreateModel(const std::string& xfilename) = 0;
+    virtual IModel* CreateModel(const std::string& xfilename, const int subId) = 0;
 };
 
 class Action
