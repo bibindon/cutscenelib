@@ -2,8 +2,10 @@
 
 void Action::Init(const std::vector<std::string>& scriptLine,
                   IModelCreator* modelCreator,
+                  IFont* font,
                   ICamera* camera)
 {
+    m_font = font;
     m_camera = camera;
 
     m_id    = std::atoi(scriptLine.at(0).c_str());
@@ -106,6 +108,11 @@ void Action::Init(const std::vector<std::string>& scriptLine,
         m_stModelAnim.m_subId = std::atoi(scriptLine.at(5).c_str());
         m_stModelAnim.m_animName = scriptLine.at(6).c_str();
     }
+    else if (m_eType == eType::TEXT)
+    {
+        std::vector<std::string> vs = split(scriptLine.at(4), '\n');
+        m_stText.m_text = vs;
+    }
 }
 
 void Action::Update(const int elapsed)
@@ -184,10 +191,26 @@ void Action::Update(const int elapsed)
             m_stModelAnim.m_model->SetAnim(m_stModelAnim.m_animName);
         }
     }
+    else if (m_eType == eType::TEXT)
+    {
+        // TODO •¶Žš‘—‚è
+    }
 }
 
-void Action::Render()
+void Action::Render(const int elapsed)
 {
+    if (m_end != -1)
+    {
+        if (elapsed < m_start || m_end <= elapsed) {
+            return;
+        }
+    }
+    else
+    {
+        if (elapsed < m_start) {
+            return;
+        }
+    }
     if (m_eType == eType::CAMERA)
     {
         // do nothing.
@@ -203,6 +226,23 @@ void Action::Render()
     else if(m_eType == eType::MODEL_ANIM)
     {
         // do nothing
+    }
+    else if (m_eType == eType::TEXT)
+    {
+        if (m_stText.m_text.size() >= 1)
+        {
+            m_font->DrawText_(m_stText.m_text.at(0), 100, 730);
+        }
+
+        if (m_stText.m_text.size() >= 2)
+        {
+            m_font->DrawText_(m_stText.m_text.at(1), 100, 780);
+        }
+
+        if (m_stText.m_text.size() >= 3)
+        {
+            m_font->DrawText_(m_stText.m_text.at(2), 100, 830);
+        }
     }
 }
 

@@ -57,9 +57,10 @@ class Action
 public:
     void Init(const std::vector<std::string>& scriptLine,
               IModelCreator* modelCreator,
+              IFont* font,
               ICamera* camera);
     void Update(const int elapsed);
-    void Render();
+    void Render(const int elapsed);
     void Finalize();
 
 private:
@@ -144,7 +145,8 @@ private:
 
     struct stText
     {
-        std::string m_text;
+        std::vector<std::string> m_text;
+        bool m_Done = false;
     };
 
     struct stSE
@@ -160,6 +162,7 @@ private:
     stText m_stText;
     stSE m_stSE;
 
+    IFont* m_font = nullptr;
     ICamera* m_camera = nullptr;
 };
 

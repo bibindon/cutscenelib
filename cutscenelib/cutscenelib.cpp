@@ -65,7 +65,7 @@ std::vector<Action> CutScene::CreateActionList()
     for (std::size_t i = 1; i < vss.size(); ++i)
     {
         Action action;
-        action.Init(vss.at(i), m_modelCreator, m_camera);
+        action.Init(vss.at(i), m_modelCreator, m_font, m_camera);
         actionList.push_back(action);
     }
     return actionList;
@@ -86,6 +86,13 @@ bool CutScene::Update()
 
 void CutScene::Render()
 {
+    m_currentTime = std::chrono::system_clock::now();
+    int duration = (int)std::chrono::duration_cast<std::chrono::milliseconds>(
+                   m_currentTime - m_startTime).count();
+    for (std::size_t i = 0; i < m_actionList.size(); ++i)
+    {
+        m_actionList.at(i).Render(duration);
+    }
 }
 
 void CutScene::Finalize()
