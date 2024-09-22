@@ -24,7 +24,9 @@ const std::string   TITLE = "simple anim mesh";
 LPDIRECT3DDEVICE9   g_D3DDevice;
 LPDIRECT3D9         g_D3D;
 Mesh*               g_Mesh { nullptr };
-AnimMesh*           g_AnimMesh = { nullptr };
+AnimMesh*           g_AnimMesh1 = { nullptr };
+AnimMesh*           g_AnimMesh2 = { nullptr };
+AnimMesh*           g_AnimMesh3 = { nullptr };
 
 const D3DXVECTOR3   UPWARD { 0.0f, 1.0f, 0.0f };
 D3DXVECTOR3         g_eyePos { 4.0f, 4.0f, 4.0f };
@@ -214,7 +216,7 @@ public:
     // progress‚Í 0 ~ 100‚ª—^‚¦‚ç‚ê‚é ?
     virtual void SetAnim(const std::string& animName)
     {
-//        g_AnimMesh->SetAnim(D3DXVECTOR3(posX, posY, posZ));
+//        g_AnimMesh1->SetAnim(D3DXVECTOR3(posX, posY, posZ));
 //        g_eyePos = m_startEye;
 //        g_lookAtPos = m_startAt;
     }
@@ -232,7 +234,15 @@ public:
         IModel* model = nullptr;
         if (xfilename == "hoshiman.x")
         {
-            model = new AnimModel(g_AnimMesh);
+            model = new AnimModel(g_AnimMesh1);
+        }
+        else if (xfilename == "rippoutai.x")
+        {
+            model = new AnimModel(g_AnimMesh2);
+        }
+        else if (xfilename == "tiger.x")
+        {
+            model = new MeshModel(g_Mesh);
         }
         return model;
     }
@@ -406,11 +416,24 @@ void Init(const HINSTANCE& hInstance)
                       D3DXVECTOR3(3, 1, 0),
                       D3DXVECTOR3(0, 0, 0),
                       1.0f);
-    g_AnimMesh = new AnimMesh(g_D3DDevice,
-                              "hoshiman.x",
-                              D3DXVECTOR3(0, 0, 0),
-                              D3DXVECTOR3(0, 0, 0),
-                              0.5f);
+
+    g_AnimMesh1 = new AnimMesh(g_D3DDevice,
+                               "hoshiman.x",
+                               D3DXVECTOR3(0, 0, 0),
+                               D3DXVECTOR3(0, 0, 0),
+                               0.5f);
+
+    g_AnimMesh2 = new AnimMesh(g_D3DDevice,
+                               "rippoutai.x",
+                               D3DXVECTOR3(-1, 0, 0),
+                               D3DXVECTOR3(0, 0, 0),
+                               0.5f);
+
+    g_AnimMesh3 = new AnimMesh(g_D3DDevice,
+                               "rippoutai.x",
+                               D3DXVECTOR3(-3, 0, 0),
+                               D3DXVECTOR3(0, 0, 0),
+                               0.5f);
 
     ShowWindow(hWnd, SW_SHOW);
 }
@@ -418,7 +441,9 @@ void Init(const HINSTANCE& hInstance)
 void Finalize()
 {
     SAFE_DELETE(g_Mesh);
-    SAFE_DELETE(g_AnimMesh);
+    SAFE_DELETE(g_AnimMesh1);
+    SAFE_DELETE(g_AnimMesh2);
+    SAFE_DELETE(g_AnimMesh3);
     SAFE_RELEASE(g_D3DDevice);
     SAFE_RELEASE(g_D3D);
     g_talk->Finalize();
@@ -449,7 +474,9 @@ int MainLoop()
             }
         }
 
-        g_AnimMesh->Update();
+        g_AnimMesh1->Update();
+        g_AnimMesh2->Update();
+        g_AnimMesh3->Update();
 
         g_D3DDevice->Clear(0,
                            NULL,
@@ -460,7 +487,9 @@ int MainLoop()
         g_D3DDevice->BeginScene();
 
         g_Mesh->Render(GetViewMatrix(), GetProjMatrix());
-        g_AnimMesh->Render(GetViewMatrix(), GetProjMatrix());
+        g_AnimMesh1->Render(GetViewMatrix(), GetProjMatrix());
+        g_AnimMesh2->Render(GetViewMatrix(), GetProjMatrix());
+        g_AnimMesh3->Render(GetViewMatrix(), GetProjMatrix());
 
         if (g_talk != nullptr)
         {
