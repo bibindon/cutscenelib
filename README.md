@@ -1,4 +1,8 @@
+<video src="cutscene.mp4" controls="true"></video>
+
 カットシーンを行うライブラリ
 
-・csvファイルを読み込み、csvファイルの内容に従って、フェードイン、フェードアウト、カメラを移動、アニメーション、文章の表示、BGMの再生ができるようにする
+![cutscene.png](cutscene.png)
+
+上の図のようなcsvファイルを読み込ませて使う。
 
