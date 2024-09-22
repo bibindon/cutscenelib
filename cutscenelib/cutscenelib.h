@@ -58,6 +58,7 @@ public:
     void Init(const std::vector<std::string>& scriptLine,
               IModelCreator* modelCreator,
               IFont* font,
+              ISprite* sprTextBack,
               ICamera* camera);
     void Update(const int elapsed);
     void Render(const int elapsed);
@@ -136,17 +137,23 @@ private:
     struct stModelAnim
     {
         std::string m_XFileName;
-        IModel* m_model = nullptr;
-        int m_subId = 0;
+        IModel*     m_model     = nullptr;
+        int         m_subId     = 0;
         std::string m_animName;
-
-        bool m_Done = false;
+        bool        m_Done      = false;
     };
 
     struct stText
     {
         std::vector<std::string> m_text;
-        bool m_Done = false;
+
+        // 表示されている文字（文字送り演出用）
+        std::vector<std::string> m_textShow;
+
+        // 表示されている文字数（文字送り演出用）
+        int m_charCount = 0;
+
+        int m_counter = 0;
     };
 
     struct stSE
@@ -163,6 +170,7 @@ private:
     stSE m_stSE;
 
     IFont* m_font = nullptr;
+    ISprite* m_sprTextBack = nullptr;
     ICamera* m_camera = nullptr;
 };
 

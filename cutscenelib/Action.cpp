@@ -3,9 +3,11 @@
 void Action::Init(const std::vector<std::string>& scriptLine,
                   IModelCreator* modelCreator,
                   IFont* font,
+                  ISprite* sprTextBack,
                   ICamera* camera)
 {
     m_font = font;
+    m_sprTextBack = sprTextBack;
     m_camera = camera;
 
     m_id    = std::atoi(scriptLine.at(0).c_str());
@@ -110,8 +112,11 @@ void Action::Init(const std::vector<std::string>& scriptLine,
     }
     else if (m_eType == eType::TEXT)
     {
-        std::vector<std::string> vs = split(scriptLine.at(4), '\n');
+        std::string work = scriptLine.at(4);
+        work.erase(remove(work.begin(), work.end(), '\"'), work.end());
+        std::vector<std::string> vs = split(work, '\n');
         m_stText.m_text = vs;
+        m_stText.m_textShow.resize(3);
     }
 }
 
@@ -193,7 +198,86 @@ void Action::Update(const int elapsed)
     }
     else if (m_eType == eType::TEXT)
     {
-        // TODO 文字送り
+        // 30フレーム経過してから文字の表示を始める
+
+        // 文字送り処理
+        m_stText.m_textShow.at(0).clear();
+        m_stText.m_textShow.at(1).clear();
+        m_stText.m_textShow.at(2).clear();
+        m_stText.m_counter++;
+        if (m_stText.m_counter >= 30)
+        {
+            m_stText.m_charCount++;
+        }
+
+        // 一行目
+        if (m_stText.m_charCount < (int)m_stText.m_text.at(0).size())
+        {
+            // マルチバイト文字は1文字で2バイトであることを考慮する
+            if (m_stText.m_charCount % 2 == 0)
+            {
+                m_stText.m_textShow.at(0) = m_stText.m_text.at(0).substr(0, m_stText.m_charCount);
+            }
+            else
+            {
+                m_stText.m_textShow.at(0) = m_stText.m_text.at(0).substr(0, m_stText.m_charCount - 1);
+            }
+        }
+        else
+        {
+            m_stText.m_textShow.at(0) = m_stText.m_text.at(0);
+        }
+
+        int total = 0;
+
+        // 二行目
+        total = m_stText.m_text.at(0).size() + m_stText.m_text.at(1).size();
+        int secondLineCount = m_stText.m_charCount - m_stText.m_text.at(0).size();
+        if (m_stText.m_charCount < total)
+        {
+            if (secondLineCount >= 0)
+            {
+                // マルチバイト文字は1文字で2バイトであることを考慮する
+                if (secondLineCount % 2 == 0)
+                {
+                    m_stText.m_textShow.at(1) = m_stText.m_text.at(1).substr(0, secondLineCount);
+                }
+                else
+                {
+                    m_stText.m_textShow.at(1) = m_stText.m_text.at(1).substr(0, secondLineCount - 1);
+                }
+            }
+        }
+        else
+        {
+            m_stText.m_textShow.at(1) = m_stText.m_text.at(1);
+        }
+
+        // 三行目
+        total = m_stText.m_text.at(0).size() + m_stText.m_text.at(1).size()
+                                             + m_stText.m_text.at(2).size();
+
+        int thirdLineCount = m_stText.m_charCount - m_stText.m_text.at(0).size()
+                                                     - m_stText.m_text.at(1).size();
+        if (m_stText.m_charCount < total)
+        {
+            if (thirdLineCount >= 0)
+            {
+                // マルチバイト文字は1文字で2バイトであることを考慮する
+                if (thirdLineCount % 2 == 0)
+                {
+                    m_stText.m_textShow.at(2) = m_stText.m_text.at(2).substr(0, thirdLineCount);
+                }
+                else
+                {
+                    m_stText.m_textShow.at(2) = m_stText.m_text.at(2).substr(0, thirdLineCount - 1);
+                }
+            }
+        }
+        else
+        {
+            m_stText.m_textShow.at(2) = m_stText.m_text.at(2);
+        }
     }
 }
 
@@ -229,19 +313,20 @@ void Action::Render(const int elapsed)
     }
     else if (m_eType == eType::TEXT)
     {
-        if (m_stText.m_text.size() >= 1)
+        m_sprTextBack->DrawImage(0, 0);
+        if (m_stText.m_textShow.size() >= 1)
         {
-            m_font->DrawText_(m_stText.m_text.at(0), 100, 730);
+            m_font->DrawText_(m_stText.m_textShow.at(0), 100, 730);
         }
 
-        if (m_stText.m_text.size() >= 2)
+        if (m_stText.m_textShow.size() >= 2)
         {
-            m_font->DrawText_(m_stText.m_text.at(1), 100, 780);
+            m_font->DrawText_(m_stText.m_textShow.at(1), 100, 780);
         }
 
-        if (m_stText.m_text.size() >= 3)
+        if (m_stText.m_textShow.size() >= 3)
         {
-            m_font->DrawText_(m_stText.m_text.at(2), 100, 830);
+            m_font->DrawText_(m_stText.m_textShow.at(2), 100, 830);
         }
     }
 }
