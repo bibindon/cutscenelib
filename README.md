@@ -1,4 +1,5 @@
-<video src="cutscene.mp4" controls="true"></video>
+
+https://github.com/user-attachments/assets/e09669be-a88b-4b86-86e4-6238cac77ee8
 
 カットシーンを行うライブラリ
 
