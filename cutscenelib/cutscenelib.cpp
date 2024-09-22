@@ -97,11 +97,22 @@ void CutScene::Render()
 
 void CutScene::Finalize()
 {
+
+    for (std::size_t i = 0; i < m_actionList.size(); ++i)
+    {
+        m_actionList.at(i).Finalize();
+    }
+
     if (m_camera != nullptr)
     {
         m_camera->SetPosAndRot(m_restoreEyeX,    m_restoreEyeY,    m_restoreEyeZ,
                                m_restoreLookAtX, m_restoreLookAtY, m_restoreEyeZ);
     }
+    delete m_camera;
+    m_camera = nullptr;
+
+    delete m_modelCreator;
+    m_modelCreator = nullptr;
 
     delete m_sprTextBack;
     m_sprTextBack = nullptr;

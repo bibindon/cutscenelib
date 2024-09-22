@@ -369,5 +369,14 @@ void Action::Render(const int elapsed)
 
 void Action::Finalize()
 {
+    delete m_stModelPos.m_model;
+    m_stModelPos.m_model = nullptr;
+
+    delete m_stModelMove.m_model;
+    m_stModelMove.m_model = nullptr;
+
+    delete m_stModelAnim.m_model;
+    m_stModelAnim.m_model = nullptr;
+
 }
 

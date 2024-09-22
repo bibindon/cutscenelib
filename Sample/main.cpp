@@ -69,7 +69,6 @@ public:
 
     void Load(const std::string& filepath) override
     {
-        LPD3DXSPRITE tempSprite { nullptr };
         if (FAILED(D3DXCreateSprite(m_pD3DDevice, &m_D3DSprite)))
         {
             throw std::exception("Failed to create a sprite.");
@@ -345,7 +344,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void Init(const HINSTANCE& hInstance)
 {
-    const std::string   TITLE = "simple anim mesh";
+    const std::string TITLE = "simple anim mesh";
     WNDCLASSEX wcex = { sizeof(WNDCLASSEX),
                         CS_HREDRAW | CS_VREDRAW,
                         WndProc,
@@ -375,8 +374,8 @@ void Init(const HINSTANCE& hInstance)
     HWND hWnd = CreateWindow(TITLE.c_str(),
                              TITLE.c_str(),
                              WS_OVERLAPPEDWINDOW,
-                             CW_USEDEFAULT,
-                             CW_USEDEFAULT,
+                             10,
+                             10,
                              rect.right,
                              rect.bottom,
                              NULL,
