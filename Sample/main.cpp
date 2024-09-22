@@ -1,3 +1,4 @@
+// TODO subID‚ğl—¶‚·‚é
 #pragma comment(lib, "d3d9.lib")
 #ifdef _DEBUG
 #pragma comment(lib, "d3dx9d.lib")

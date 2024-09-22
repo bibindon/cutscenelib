@@ -130,6 +130,8 @@ private:
         float m_endRotX = 0.f;
         float m_endRotY = 0.f;
         float m_endRotZ = 0.f;
+
+        IModel* m_model = nullptr;
     };
 
     struct stModelAnim
@@ -152,7 +154,7 @@ private:
 
     stCamera m_stCamera;
     stModelPos m_stModelPos;
-    stModelPos m_stModelMove;
+    stModelMove m_stModelMove;
     stModelAnim m_stModelAnim;
     stText m_stText;
     stSE m_stSE;

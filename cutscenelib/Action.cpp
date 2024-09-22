@@ -74,6 +74,32 @@ void Action::Init(const std::vector<std::string>& scriptLine,
         m_stModelPos.m_RotY = (float)std::atof(vs.at(1).c_str());
         m_stModelPos.m_RotZ = (float)std::atof(vs.at(2).c_str());
     }
+    else if (m_eType == eType::MODEL_MOVE)
+    {
+        m_stModelMove.m_model = modelCreator->CreateModel(scriptLine.at(4));
+        m_stModelMove.m_subId = std::atoi(scriptLine.at(5).c_str());
+
+        std::vector<std::string> vs;
+        vs = split(scriptLine.at(6), ':');
+        m_stModelMove.m_startPosX = (float)std::atof(vs.at(0).c_str());
+        m_stModelMove.m_startPosY = (float)std::atof(vs.at(1).c_str());
+        m_stModelMove.m_startPosZ = (float)std::atof(vs.at(2).c_str());
+
+        vs = split(scriptLine.at(7), ':');
+        m_stModelMove.m_startRotX = (float)std::atof(vs.at(0).c_str());
+        m_stModelMove.m_startRotY = (float)std::atof(vs.at(1).c_str());
+        m_stModelMove.m_startRotZ = (float)std::atof(vs.at(2).c_str());
+
+        vs = split(scriptLine.at(8), ':');
+        m_stModelMove.m_endPosX = (float)std::atof(vs.at(0).c_str());
+        m_stModelMove.m_endPosY = (float)std::atof(vs.at(1).c_str());
+        m_stModelMove.m_endPosZ = (float)std::atof(vs.at(2).c_str());
+
+        vs = split(scriptLine.at(9), ':');
+        m_stModelMove.m_endRotX = (float)std::atof(vs.at(0).c_str());
+        m_stModelMove.m_endRotY = (float)std::atof(vs.at(1).c_str());
+        m_stModelMove.m_endRotZ = (float)std::atof(vs.at(2).c_str());
+    }
 }
 
 void Action::Update(const int elapsed)
@@ -118,6 +144,7 @@ void Action::Update(const int elapsed)
         if (m_stModelPos.m_Done == false)
         {
             m_stModelPos.m_Done = true;
+            // TODO
             if (m_stModelPos.m_model == nullptr)
             {
                 return;
@@ -130,6 +157,29 @@ void Action::Update(const int elapsed)
                                                m_stModelPos.m_RotZ);
         }
     }
+    else if (m_eType == eType::MODEL_MOVE)
+    {
+        // TODO
+        if (m_stModelMove.m_model == nullptr)
+        {
+            return;
+        }
+        float progress = (float)(elapsed - m_start) / (m_end - m_start) ;
+        float workPosX = 0.f;
+        float workPosY = 0.f;
+        float workPosZ = 0.f;
+        float workRotX = 0.f;
+        float workRotY = 0.f;
+        float workRotZ = 0.f;
+        workPosX = m_stModelMove.m_startPosX + (m_stModelMove.m_endPosX - m_stModelMove.m_startPosX) * progress;
+        workPosY = m_stModelMove.m_startPosY + (m_stModelMove.m_endPosY - m_stModelMove.m_startPosY) * progress;
+        workPosZ = m_stModelMove.m_startPosZ + (m_stModelMove.m_endPosZ - m_stModelMove.m_startPosZ) * progress;
+        workRotX = m_stModelMove.m_startRotX + (m_stModelMove.m_endRotX - m_stModelMove.m_startRotX) * progress;
+        workRotY = m_stModelMove.m_startRotY + (m_stModelMove.m_endRotY - m_stModelMove.m_startRotY) * progress;
+        workRotZ = m_stModelMove.m_startRotZ + (m_stModelMove.m_endRotZ - m_stModelMove.m_startRotZ) * progress;
+        m_stModelMove.m_model->SetPosAndRot(workPosX, workPosY, workPosZ,
+                                            workRotX, workRotY, workRotZ);
+    }
 }
 
 void Action::Render()
@@ -139,6 +189,10 @@ void Action::Render()
         // do nothing.
     }
     else if(m_eType == eType::MODEL_POS)
+    {
+        // do nothing
+    }
+    else if(m_eType == eType::MODEL_MOVE)
     {
         // do nothing
     }
