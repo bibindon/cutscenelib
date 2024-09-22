@@ -137,29 +137,19 @@ void Action::Init(const std::vector<std::string>& scriptLine,
     }
 }
 
-void Action::Update(const int elapsed)
+bool Action::Update(const int elapsed)
 {
-//    std::string work = std::to_string(elapsed);
-//    work += "\n";
-//    OutputDebugString(work.c_str());
-
-//    if (m_end != -1)
-//    {
-//        if (elapsed < m_start || m_end <= elapsed) {
-//            return;
-//        }
-//    }
-//    else
+    bool finish = true;
+    if (elapsed < m_start)
     {
-        if (elapsed < m_start) {
-            return;
-        }
+        return false;
     }
 
     if (m_eType == eType::CAMERA)
     {
         if (elapsed < m_end)
         {
+            finish = false;
             // progressは0.f ~ 1.f
             float progress = (float)(elapsed - m_start) / (m_end - m_start) ;
             float workEyeX = 0.f;
@@ -181,6 +171,7 @@ void Action::Update(const int elapsed)
     {
         if (m_stModelPos.m_Done == false)
         {
+            finish = false;
             m_stModelPos.m_Done = true;
             m_stModelPos.m_model->SetPosAndRot(m_stModelPos.m_PosX,
                                                m_stModelPos.m_PosY,
@@ -194,6 +185,7 @@ void Action::Update(const int elapsed)
     {
         if (elapsed < m_end)
         {
+            finish = false;
             float progress = (float)(elapsed - m_start) / (m_end - m_start) ;
             float workPosX = 0.f;
             float workPosY = 0.f;
@@ -215,6 +207,7 @@ void Action::Update(const int elapsed)
     {
         if (elapsed < m_end)
         {
+            finish = false;
             if (m_stModelAnim.m_Done == false)
             {
                 m_stModelAnim.m_Done = true;
@@ -226,6 +219,7 @@ void Action::Update(const int elapsed)
     {
         if (elapsed < m_end)
         {
+            finish = false;
             // 30フレーム経過してから文字の表示を始める
 
             // 文字送り処理
@@ -310,8 +304,12 @@ void Action::Update(const int elapsed)
     }
     else if (m_eType == eType::SE)
     {
-        // do nothing
+        if (m_stSE.m_Stopped == false)
+        {
+            finish = false;
+        }
     }
+    return finish;
 }
 
 void Action::Render(const int elapsed)
@@ -360,15 +358,19 @@ void Action::Render(const int elapsed)
     {
         if (elapsed < m_end)
         {
-            if (m_stSE.m_Done == false)
+            if (m_stSE.m_Started == false)
             {
-                m_stSE.m_Done = true;
+                m_stSE.m_Started = true;
                 m_SE->Play(m_stSE.m_fileName, m_stSE.m_volume, m_stSE.m_loop);
             }
         }
         else
         {
-            m_SE->Stop();
+            if (m_stSE.m_Stopped == false)
+            {
+                m_stSE.m_Stopped = true;
+                m_SE->Stop();
+            }
         }
     }
 }

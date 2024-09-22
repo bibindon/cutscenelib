@@ -61,7 +61,7 @@ public:
               ISprite* sprTextBack,
               ISoundEffect* SE,
               ICamera* camera);
-    void Update(const int elapsed);
+    bool Update(const int elapsed);
     void Render(const int elapsed);
     void Finalize();
 
@@ -162,7 +162,8 @@ private:
         std::string m_fileName;
         int m_volume = 0;
         bool m_loop = false;
-        bool m_Done = false;
+        bool m_Started = false;
+        bool m_Stopped = false;
     };
 
     stCamera m_stCamera;
@@ -221,6 +222,7 @@ private:
     bool m_isFadeIn = false;
     int m_FadeInCount = 0;
     bool m_isFadeOut = false;
+    bool m_fadeOutFinish = false;
     int m_FadeOutCount = 0;
 
     const int WAIT_NEXT_FRAME = 60;
