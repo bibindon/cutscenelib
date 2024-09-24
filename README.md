@@ -9,3 +9,4 @@ https://github.com/user-attachments/assets/e09669be-a88b-4b86-86e4-6238cac77ee8
 
 TODO  
 ・フェードインアウトがあったほうが良い気がする。
+　単純にカットシーンを二回実行すればフェードインアウトできるといえばできるか？
