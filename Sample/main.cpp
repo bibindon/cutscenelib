@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
+using namespace NSCutScenelib;
+
 LPDIRECT3DDEVICE9   g_D3DDevice;
 LPDIRECT3D9         g_D3D;
 Mesh*               g_Mesh { nullptr };

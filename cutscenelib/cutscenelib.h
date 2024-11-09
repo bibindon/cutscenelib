@@ -4,6 +4,8 @@
 #include <vector>
 #include <chrono>
 
+namespace NSCutScenelib
+{
 class ISprite
 {
 public:
@@ -240,4 +242,4 @@ private:
 };
 
 std::vector<std::string> split(const std::string& s, char delim);
-
+}

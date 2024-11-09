@@ -1,5 +1,7 @@
 #include "cutscenelib.h"
 
+using namespace NSCutScenelib;
+
 void Action::Init(const std::vector<std::string>& scriptLine,
                   IModelCreator* modelCreator,
                   IFont* font,
