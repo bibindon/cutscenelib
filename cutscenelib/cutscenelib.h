@@ -154,7 +154,7 @@ private:
         std::vector<std::string> m_textShow;
 
         // 表示されている文字数（文字送り演出用）
-        int m_charCount = 0;
+        size_t m_charCount = 0;
 
         int m_counter = 0;
     };

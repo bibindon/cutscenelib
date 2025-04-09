@@ -252,11 +252,11 @@ bool Action::Update(const int elapsed)
                 m_stText.m_textShow.at(0) = m_stText.m_text.at(0);
             }
 
-            int total = 0;
+            size_t total = 0;
 
             // ìÒçsñ⁄
             total = m_stText.m_text.at(0).size() + m_stText.m_text.at(1).size();
-            int secondLineCount = m_stText.m_charCount - m_stText.m_text.at(0).size();
+            size_t secondLineCount = m_stText.m_charCount - m_stText.m_text.at(0).size();
             if (m_stText.m_charCount < total)
             {
                 if (secondLineCount >= 0)
@@ -281,7 +281,7 @@ bool Action::Update(const int elapsed)
             total = m_stText.m_text.at(0).size() + m_stText.m_text.at(1).size()
                                                  + m_stText.m_text.at(2).size();
 
-            int thirdLineCount = m_stText.m_charCount - m_stText.m_text.at(0).size()
+            size_t thirdLineCount = m_stText.m_charCount - m_stText.m_text.at(0).size()
                                                          - m_stText.m_text.at(1).size();
             if (m_stText.m_charCount < total)
             {
