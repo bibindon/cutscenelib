@@ -18,7 +18,7 @@ class IFont
 {
 public:
     virtual void DrawText_(const std::string& msg, const int x, const int y) = 0;
-    virtual void Init() = 0;
+    virtual void Init(const bool bEnglish) = 0;
     virtual ~IFont() {};
 };
 
@@ -185,20 +185,20 @@ class CutScene
 {
 public:
 
-    void Init(
-        const std::string& csvfilepath,
-        IFont* font,
-        ISoundEffect* SE,
-        ISprite* sprTextBack,
-        ISprite* sprFade,
-        IModelCreator* modelCreator,
-        ICamera* restore,
-        const float eyeX,
-        const float eyeY,
-        const float eyeZ,
-        const float lookAtX,
-        const float lookAtY,
-        const float lookAtZ);
+    void Init(const std::string& csvfilepath,
+              IFont* font,
+              ISoundEffect* SE,
+              ISprite* sprTextBack,
+              ISprite* sprFade,
+              IModelCreator* modelCreator,
+              ICamera* restore,
+              const float eyeX,
+              const float eyeY,
+              const float eyeZ,
+              const float lookAtX,
+              const float lookAtY,
+              const float lookAtZ,
+              const bool bEnglish);
 
     std::vector<Action> CreateActionList();
 

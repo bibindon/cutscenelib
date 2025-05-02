@@ -210,9 +210,20 @@ void AnimMesh::SetAnim(const std::string& animSet)
 
 void AnimMesh::Update()
 {
+#ifdef _WIN64
+    m_animTime += 1.f / 60 / 80;
+#else
     m_animTime += 1.f / 60;
+#endif
+
     m_D3DAnimController->SetTrackPosition(0, 0.f);
+
+#ifdef _WIN64
+    m_D3DAnimController->AdvanceTime(((DOUBLE)m_animConfigMap[m_currentAnim].startPos / 80) + m_animTime, nullptr);
+#else
     m_D3DAnimController->AdvanceTime((DOUBLE)m_animConfigMap[m_currentAnim].startPos + m_animTime, nullptr);
+#endif
+
     if (m_isPlaying)
     {
         float duration = m_animConfigMap.at(m_currentAnim).duration;

@@ -20,3 +20,11 @@
 /x64/Debug/Sample.pdb
 /x64/Debug/Sample.exe
 /x64/Debug/meshShader.cso
+/x64/Release/Sample.pdb
+/x64/Release/Sample.exe
+/x64/Release/meshShader.cso
+/x64/Release/d3dx9_43.dll
+/x64/Release/d3dx11_43.dll
+/x64/Release/d3dx10_43.dll
+/x64/Release/D3DCompiler_43.dll
+/x64/Release/animMeshShader.cso

@@ -117,21 +117,38 @@ public:
     {
     }
 
-    void Init()
+    void Init(const bool bEnglish)
     {
-        HRESULT hr = D3DXCreateFont(
-            m_pD3DDevice,
-            24,
-            0,
-            FW_NORMAL,
-            1,
-            false,
-            SHIFTJIS_CHARSET,
-            OUT_TT_ONLY_PRECIS,
-            ANTIALIASED_QUALITY,
-            FF_DONTCARE,
-            "‚l‚r –¾’©",
-            &m_pFont);
+        if (!bEnglish)
+        {
+            HRESULT hr = D3DXCreateFont(m_pD3DDevice,
+                                        24,
+                                        0,
+                                        FW_NORMAL,
+                                        1,
+                                        false,
+                                        SHIFTJIS_CHARSET,
+                                        OUT_TT_ONLY_PRECIS,
+                                        ANTIALIASED_QUALITY,
+                                        FF_DONTCARE,
+                                        "‚l‚r –¾’©",
+                                        &m_pFont);
+        }
+        else
+        {
+            HRESULT hr = D3DXCreateFont(m_pD3DDevice,
+                                        24,
+                                        0,
+                                        FW_NORMAL,
+                                        1,
+                                        false,
+                                        DEFAULT_CHARSET,
+                                        OUT_TT_ONLY_PRECIS,
+                                        CLEARTYPE_NATURAL_QUALITY,
+                                        FF_DONTCARE,
+                                        "Courier New",
+                                        &m_pFont);
+        }
     }
 
     virtual void DrawText_(const std::string& msg, const int x, const int y)
@@ -312,8 +329,9 @@ void StartCutScene()
     }
     g_cutscene = new CutScene();
     g_cutscene->Init("cutsceneSample.csv", pFont, pSE, sprTextBack, sprFade, modelCreator, pCamera,
-                 g_eyePos.x,    g_eyePos.y,    g_eyePos.z,
-                 g_lookAtPos.x, g_lookAtPos.y, g_lookAtPos.z);
+                     g_eyePos.x,    g_eyePos.y,    g_eyePos.z,
+                     g_lookAtPos.x, g_lookAtPos.y, g_lookAtPos.z,
+                     true);
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

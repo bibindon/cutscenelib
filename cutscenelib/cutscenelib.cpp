@@ -19,20 +19,20 @@ std::vector<std::string> NSCutScenelib::split(const std::string& s, char delim)
     return result;
 }
 
-void CutScene::Init(
-    const std::string& csvfilepath,
-    IFont* font,
-    ISoundEffect* SE,
-    ISprite* sprTextBack,
-    ISprite* sprFade,
-    IModelCreator* modelCreator,
-    ICamera* camera,
-    const float eyeX,
-    const float eyeY,
-    const float eyeZ,
-    const float lookAtX,
-    const float lookAtY,
-    const float lookAtZ)
+void CutScene::Init(const std::string& csvfilepath,
+                    IFont* font,
+                    ISoundEffect* SE,
+                    ISprite* sprTextBack,
+                    ISprite* sprFade,
+                    IModelCreator* modelCreator,
+                    ICamera* camera,
+                    const float eyeX,
+                    const float eyeY,
+                    const float eyeZ,
+                    const float lookAtX,
+                    const float lookAtY,
+                    const float lookAtZ,
+                    const bool bEnglish)
 {
     m_csvfilepath = csvfilepath;
     m_font = font;
@@ -48,7 +48,7 @@ void CutScene::Init(
     m_restoreLookAtY = lookAtY;
     m_restoreLookAtZ = lookAtZ;
 
-    m_font->Init();
+    m_font->Init(bEnglish);
     m_SE->Init();
     m_sprTextBack->Load("textBack.png");
     m_sprFade->Load("black.png");
