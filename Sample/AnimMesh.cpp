@@ -4,7 +4,7 @@
 #include "Common.h"
 
 AnimMesh::AnimMesh(const LPDIRECT3DDEVICE9 D3DDevice,
-                   const std::string& xFilename,
+                   const std::wstring& xFilename,
                    const D3DXVECTOR3& position,
                    const D3DXVECTOR3& rotation,
                    const float& scale)
@@ -196,7 +196,7 @@ void AnimMesh::ReleaseMeshAllocator(const LPD3DXFRAME frame)
     m_allocator->DestroyFrame(frame);
 }
 
-void AnimMesh::SetAnim(const std::string& animSet)
+void AnimMesh::SetAnim(const std::wstring& animSet)
 {
     if (m_animConfigMap.find(animSet) == m_animConfigMap.end())
     {
@@ -235,13 +235,13 @@ void AnimMesh::Update()
     }
 };
 
-void AnimMesh::SetDefaultAnim(const std::string& animation_name)
+void AnimMesh::SetDefaultAnim(const std::wstring& animation_name)
 {
     m_defaultAnim = animation_name;
     SetAnim(m_defaultAnim);
 }
 
-void AnimMesh::SetAnimConfig(const std::string& animName,
+void AnimMesh::SetAnimConfig(const std::wstring& animName,
                              const bool loop,
                              const float startPos,
                              const float duration)

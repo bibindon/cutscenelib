@@ -10,14 +10,14 @@ class ISprite
 {
 public:
     virtual void DrawImage(const int x, const int y, const int transparency = 255) = 0;
-    virtual void Load(const std::string& filepath) = 0;
+    virtual void Load(const std::wstring& filepath) = 0;
     virtual ~ISprite() {};
 };
 
 class IFont
 {
 public:
-    virtual void DrawText_(const std::string& msg, const int x, const int y) = 0;
+    virtual void DrawText_(const std::wstring& msg, const int x, const int y) = 0;
     virtual void Init(const bool bEnglish) = 0;
     virtual ~IFont() {};
 };
@@ -25,7 +25,7 @@ public:
 class ISoundEffect
 {
 public:
-    virtual void Play(const std::string& filename, const int volume = 100, const bool loop = false) = 0;
+    virtual void Play(const std::wstring& filename, const int volume = 100, const bool loop = false) = 0;
     virtual void Stop() = 0;
     virtual void Init() = 0;
     virtual ~ISoundEffect() {};
@@ -44,20 +44,20 @@ class IModel
 public:
     virtual void SetPosAndRot(const float posX, const float posY, const float posZ,
                               const float AtX,  const float AtY,  const float AtZ) = 0;
-    virtual void SetAnim(const std::string& animName) = 0;
+    virtual void SetAnim(const std::wstring& animName) = 0;
     virtual ~IModel() {};
 };
 
 class IModelCreator
 {
 public:
-    virtual IModel* CreateModel(const std::string& xfilename, const int subId) = 0;
+    virtual IModel* CreateModel(const std::wstring& xfilename, const int subId) = 0;
 };
 
 class Action
 {
 public:
-    void Init(const std::vector<std::string>& scriptLine,
+    void Init(const std::vector<std::wstring>& scriptLine,
               IModelCreator* modelCreator,
               IFont* font,
               ISprite* sprTextBack,
@@ -102,7 +102,7 @@ private:
 
     struct stModelPos
     {
-        std::string m_XFileName;
+        std::wstring m_XFileName;
         IModel* m_model = nullptr;
         int m_subId = 0;
 
@@ -118,7 +118,7 @@ private:
 
     struct stModelMove
     {
-        std::string m_XFileName;
+        std::wstring m_XFileName;
         IModel* m_model = nullptr;
         int m_subId = 0;
 
@@ -139,19 +139,19 @@ private:
 
     struct stModelAnim
     {
-        std::string m_XFileName;
+        std::wstring m_XFileName;
         IModel*     m_model     = nullptr;
         int         m_subId     = 0;
-        std::string m_animName;
+        std::wstring m_animName;
         bool        m_Done      = false;
     };
 
     struct stText
     {
-        std::vector<std::string> m_text;
+        std::vector<std::wstring> m_text;
 
         // 表示されている文字（文字送り演出用）
-        std::vector<std::string> m_textShow;
+        std::vector<std::wstring> m_textShow;
 
         // 表示されている文字数（文字送り演出用）
         size_t m_charCount = 0;
@@ -161,7 +161,7 @@ private:
 
     struct stSE
     {
-        std::string m_fileName;
+        std::wstring m_fileName;
         int m_volume = 0;
         bool m_loop = false;
         bool m_Started = false;
@@ -185,7 +185,7 @@ class CutScene
 {
 public:
 
-    void Init(const std::string& csvfilepath,
+    void Init(const std::wstring& csvfilepath,
               IFont* font,
               ISoundEffect* SE,
               ISprite* sprTextBack,
@@ -212,7 +212,7 @@ private:
     std::chrono::system_clock::time_point m_startTime;
     std::chrono::system_clock::time_point m_currentTime;
 
-    std::string m_csvfilepath;
+    std::wstring m_csvfilepath;
     ISprite* m_sprTextBack = nullptr;
     IFont* m_font = nullptr;
     ISoundEffect* m_SE = nullptr;
@@ -241,5 +241,5 @@ private:
     float m_restoreLookAtZ = 0.f;
 };
 
-std::vector<std::string> split(const std::string& s, char delim);
+std::vector<std::wstring> split(const std::wstring& s, wchar_t delim);
 }

@@ -2,14 +2,15 @@
 #include <sstream>
 #include "HeaderOnlyCsv.hpp"
 #include <deque>
+#include <tchar.h>
 
 using namespace NSCutScenelib;
 
-std::vector<std::string> NSCutScenelib::split(const std::string& s, char delim)
+std::vector<std::wstring> NSCutScenelib::split(const std::wstring& s, wchar_t delim)
 {
-    std::vector<std::string> result;
-    std::stringstream ss(s);
-    std::string item;
+    std::vector<std::wstring> result;
+    std::wstringstream ss(s);
+    std::wstring item;
 
     while (getline(ss, item, delim))
     {
@@ -19,7 +20,7 @@ std::vector<std::string> NSCutScenelib::split(const std::string& s, char delim)
     return result;
 }
 
-void CutScene::Init(const std::string& csvfilepath,
+void CutScene::Init(const std::wstring& csvfilepath,
                     IFont* font,
                     ISoundEffect* SE,
                     ISprite* sprTextBack,
@@ -50,8 +51,8 @@ void CutScene::Init(const std::string& csvfilepath,
 
     m_font->Init(bEnglish);
     m_SE->Init();
-    m_sprTextBack->Load("textBack.png");
-    m_sprFade->Load("black.png");
+    m_sprTextBack->Load(_T("textBack.png"));
+    m_sprFade->Load(_T("black.png"));
 
     m_isFadeIn = true;
 
@@ -63,7 +64,7 @@ void CutScene::Init(const std::string& csvfilepath,
 std::vector<Action> CutScene::CreateActionList()
 {
     std::vector<Action> actionList;
-    std::vector<std::vector<std::string> > vss = csv::Read(m_csvfilepath);
+    std::vector<std::vector<std::wstring> > vss = csv::Read(m_csvfilepath);
 
     for (std::size_t i = 1; i < vss.size(); ++i)
     {

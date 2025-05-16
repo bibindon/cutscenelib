@@ -69,7 +69,7 @@ public:
 
     }
 
-    void Load(const std::string& filepath) override
+    void Load(const std::wstring& filepath) override
     {
         if (FAILED(D3DXCreateSprite(m_pD3DDevice, &m_D3DSprite)))
         {
@@ -131,7 +131,7 @@ public:
                                         OUT_TT_ONLY_PRECIS,
                                         ANTIALIASED_QUALITY,
                                         FF_DONTCARE,
-                                        "ＭＳ 明朝",
+                                        _T("ＭＳ 明朝"),
                                         &m_pFont);
         }
         else
@@ -146,12 +146,12 @@ public:
                                         OUT_TT_ONLY_PRECIS,
                                         CLEARTYPE_NATURAL_QUALITY,
                                         FF_DONTCARE,
-                                        "Courier New",
+                                        _T("Courier New"),
                                         &m_pFont);
         }
     }
 
-    virtual void DrawText_(const std::string& msg, const int x, const int y)
+    virtual void DrawText_(const std::wstring& msg, const int x, const int y)
     {
         RECT rect = { x, y, 0, 0 };
         m_pFont->DrawText(NULL, msg.c_str(), -1, &rect, DT_LEFT | DT_NOCLIP,
@@ -172,7 +172,7 @@ private:
 
 class SoundEffect : public ISoundEffect
 {
-    void Play(const std::string& filename, const int volume, const bool loop) override
+    void Play(const std::wstring& filename, const int volume, const bool loop) override
     {
         if (loop)
         {
@@ -221,7 +221,7 @@ public:
         m_mesh->SetRot(D3DXVECTOR3(AtX, AtY, AtZ));
     }
 
-    virtual void SetAnim(const std::string& animName)
+    virtual void SetAnim(const std::wstring& animName)
     {
         // do nothing
         throw std::exception("アニメがないモデルでアニメを実行しようとした");
@@ -247,7 +247,7 @@ public:
     }
 
     // progressは 0 ~ 100が与えられる ?
-    virtual void SetAnim(const std::string& animName)
+    virtual void SetAnim(const std::wstring& animName)
     {
         m_animMesh->SetAnim(animName);
     }
@@ -260,14 +260,14 @@ class ModelCreator : public IModelCreator
 {
 public:
 
-    IModel* CreateModel(const std::string& xfilename, const int subId) override
+    IModel* CreateModel(const std::wstring& xfilename, const int subId) override
     {
         IModel* model = nullptr;
-        if (xfilename == "hoshiman.x")
+        if (xfilename == _T("hoshiman.x"))
         {
             model = new AnimModel(g_AnimMesh1);
         }
-        else if (xfilename == "rippoutai.x")
+        else if (xfilename == _T("rippoutai.x"))
         {
             if (subId == 1)
             {
@@ -278,7 +278,7 @@ public:
                 model = new AnimModel(g_AnimMesh3);
             }
         }
-        else if (xfilename == "tiger.x")
+        else if (xfilename == _T("tiger.x"))
         {
             model = new MeshModel(g_Mesh);
         }
@@ -328,7 +328,7 @@ void StartCutScene()
         g_cutscene = nullptr;
     }
     g_cutscene = new CutScene();
-    g_cutscene->Init("cutsceneSample.csv", pFont, pSE, sprTextBack, sprFade, modelCreator, pCamera,
+    g_cutscene->Init(_T("cutsceneSample.csv"), pFont, pSE, sprTextBack, sprFade, modelCreator, pCamera,
                      g_eyePos.x,    g_eyePos.y,    g_eyePos.z,
                      g_lookAtPos.x, g_lookAtPos.y, g_lookAtPos.z,
                      true);
@@ -354,7 +354,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         case 'A':
         {
-            g_AnimMesh1->SetAnim("Dead");
+            g_AnimMesh1->SetAnim(_T("Dead"));
             break;
         }
         case 'M':
@@ -371,7 +371,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void Init(const HINSTANCE& hInstance)
 {
-    const std::string TITLE = "simple anim mesh";
+    const std::wstring TITLE = _T("simple anim mesh");
     WNDCLASSEX wcex = { sizeof(WNDCLASSEX),
                         CS_HREDRAW | CS_VREDRAW,
                         WndProc,
@@ -457,49 +457,49 @@ void Init(const HINSTANCE& hInstance)
     g_D3DDevice = D3DDevice;
 
     g_Mesh = new Mesh(g_D3DDevice,
-                      "tiger.x",
+                      _T("tiger.x"),
                       D3DXVECTOR3(3, 1, 0),
                       D3DXVECTOR3(0, 0, 0),
                       1.0f);
 
     g_AnimMesh1 = new AnimMesh(g_D3DDevice,
-                               "hoshiman.x",
+                               _T("hoshiman.x"),
                                D3DXVECTOR3(0, 0, 0),
                                D3DXVECTOR3(0, 0, 0),
                                0.5f);
-    g_AnimMesh1->SetAnimConfig("Idle",    true,  0.0f, 0.5f);
-    g_AnimMesh1->SetAnimConfig("Walk",    true, 1.0f, 1.0f);
-    g_AnimMesh1->SetAnimConfig("Attack",  false, 1.0f, 1.0f);
-    g_AnimMesh1->SetAnimConfig("Damaged", false, 3.0f, 0.5f);
-    g_AnimMesh1->SetAnimConfig("Dead",    false, 3.5f, 0.5f);
-    g_AnimMesh1->SetAnimConfig("Jump",    false, 5.0f, 2.0f);
-    g_AnimMesh1->SetDefaultAnim("Idle");
-    g_AnimMesh1->SetAnim("Idle");
+    g_AnimMesh1->SetAnimConfig(_T("Idle"),    true,  0.0f, 0.5f);
+    g_AnimMesh1->SetAnimConfig(_T("Walk"),    true, 1.0f, 1.0f);
+    g_AnimMesh1->SetAnimConfig(_T("Attack"),  false, 1.0f, 1.0f);
+    g_AnimMesh1->SetAnimConfig(_T("Damaged"), false, 3.0f, 0.5f);
+    g_AnimMesh1->SetAnimConfig(_T("Dead"),    false, 3.5f, 0.5f);
+    g_AnimMesh1->SetAnimConfig(_T("Jump"),    false, 5.0f, 2.0f);
+    g_AnimMesh1->SetDefaultAnim(_T("Idle"));
+    g_AnimMesh1->SetAnim(_T("Idle"));
 
     g_AnimMesh2 = new AnimMesh(g_D3DDevice,
-                               "rippoutai.x",
+                               _T("rippoutai.x"),
                                D3DXVECTOR3(-1, 0, 0),
                                D3DXVECTOR3(0, 0, 0),
                                0.5f);
-    g_AnimMesh2->SetAnimConfig("Idle",    true,  0.5f, 0.5f);
-    g_AnimMesh2->SetAnimConfig("Walk",    true,  0.0f, 0.5f);
-    g_AnimMesh2->SetAnimConfig("Damaged", false, 1.0f, 1.0f);
-    g_AnimMesh2->SetAnimConfig("Attack",  false, 2.0f, 0.5f);
-    g_AnimMesh2->SetDefaultAnim("Idle");
-    g_AnimMesh2->SetAnim("Idle");
+    g_AnimMesh2->SetAnimConfig(_T("Idle"),    true,  0.5f, 0.5f);
+    g_AnimMesh2->SetAnimConfig(_T("Walk"),    true,  0.0f, 0.5f);
+    g_AnimMesh2->SetAnimConfig(_T("Damaged"), false, 1.0f, 1.0f);
+    g_AnimMesh2->SetAnimConfig(_T("Attack"),  false, 2.0f, 0.5f);
+    g_AnimMesh2->SetDefaultAnim(_T("Idle"));
+    g_AnimMesh2->SetAnim(_T("Idle"));
 
 
     g_AnimMesh3 = new AnimMesh(g_D3DDevice,
-                               "rippoutai.x",
+                               _T("rippoutai.x"),
                                D3DXVECTOR3(-3, 0, 0),
                                D3DXVECTOR3(0, 0, 0),
                                0.5f);
-    g_AnimMesh3->SetAnimConfig("Idle",    true,  0.5f, 0.5f);
-    g_AnimMesh3->SetAnimConfig("Walk",    true,  0.0f, 0.5f);
-    g_AnimMesh3->SetAnimConfig("Damaged", false, 1.0f, 1.0f);
-    g_AnimMesh3->SetAnimConfig("Attack",  false, 2.0f, 0.5f);
-    g_AnimMesh3->SetDefaultAnim("Idle");
-    g_AnimMesh3->SetAnim("Idle");
+    g_AnimMesh3->SetAnimConfig(_T("Idle"),    true,  0.5f, 0.5f);
+    g_AnimMesh3->SetAnimConfig(_T("Walk"),    true,  0.0f, 0.5f);
+    g_AnimMesh3->SetAnimConfig(_T("Damaged"), false, 1.0f, 1.0f);
+    g_AnimMesh3->SetAnimConfig(_T("Attack"),  false, 2.0f, 0.5f);
+    g_AnimMesh3->SetDefaultAnim(_T("Idle"));
+    g_AnimMesh3->SetAnim(_T("Idle"));
 
     ShowWindow(hWnd, SW_SHOW);
 }

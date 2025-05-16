@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <tchar.h>
 
 class AnimMesh
 {
@@ -15,7 +16,7 @@ class AnimMesh
 public:
 
     AnimMesh(const LPDIRECT3DDEVICE9 D3DDevice,
-             const std::string&,
+             const std::wstring&,
              const D3DXVECTOR3&,
              const D3DXVECTOR3&,
              const float&);
@@ -26,9 +27,9 @@ public:
     void SetRotate(const D3DXVECTOR3& rotate);
 
     void Update();
-    void SetAnim(const std::string& animationSet);
-    void SetDefaultAnim(const std::string& animationName);
-    void SetAnimConfig(const std::string& animationName,
+    void SetAnim(const std::wstring& animationSet);
+    void SetDefaultAnim(const std::wstring& animationName);
+    void SetAnimConfig(const std::wstring& animationName,
                        const bool loop,
                        const float startPos,
                        const float duration);
@@ -40,8 +41,8 @@ private:
     void RenderMeshContainer(const LPD3DXMESHCONTAINER, const LPD3DXFRAME);
     void ReleaseMeshAllocator(const LPD3DXFRAME);
 
-    const std::string SHADER_FILENAME = "animMeshShader.fx";
-    std::string m_meshName = "";
+    const std::wstring SHADER_FILENAME = _T("animMeshShader.fx");
+    std::wstring m_meshName;
 
     LPD3DXEFFECT m_D3DEffect = nullptr;
 
@@ -62,9 +63,9 @@ private:
     bool m_isPlaying = false;
     std::vector<LPD3DXANIMATIONSET> m_animSets;
     LPD3DXANIMATIONCONTROLLER m_D3DAnimController = nullptr;
-    std::string m_defaultAnim = "";
+    std::wstring m_defaultAnim;
     float m_animTime = 0.f;
-    std::string m_currentAnim = "";
+    std::wstring m_currentAnim;
 
     struct AnimConfig
     {
@@ -72,6 +73,6 @@ private:
         float startPos = 0.0f;
         float duration = 1.0f;
     };
-    std::unordered_map<std::string, AnimConfig> m_animConfigMap;
+    std::unordered_map<std::wstring, AnimConfig> m_animConfigMap;
 };
 

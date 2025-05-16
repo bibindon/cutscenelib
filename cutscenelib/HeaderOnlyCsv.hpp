@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <iterator>
+#include <locale>
 #include "Shlwapi.h"
 #pragma comment( lib, "Shlwapi.lib" ) 
 
@@ -11,9 +12,9 @@ class csv
 {
 public:
 
-    static std::vector<std::vector<std::string> > Read(const std::string& filepath)
+    static std::vector<std::vector<std::wstring> > Read(const std::wstring& filepath)
     {
-        std::vector<std::vector<std::string> > csvData;
+        std::vector<std::vector<std::wstring> > csvData;
         int result = PathFileExists(filepath.c_str());
         if (result == 0)
         {
@@ -23,9 +24,9 @@ public:
         // 「"」記号で囲まれているとセル内改行ができることに注意
         // 「"」記号で囲まれているとセル内で「,」が使用できることに注意
         std::ifstream ifs(filepath);
-        std::string buffComma;
+        std::wstring buffComma;
         bool doubleQuoteMode = false;
-        std::vector<std::string> work;
+        std::vector<std::wstring> work;
         std::istreambuf_iterator<char> itBegin(ifs);
         std::istreambuf_iterator<char> itEnd;
 
@@ -77,16 +78,16 @@ public:
         return csvData;
     }
 
-    static std::vector<std::vector<std::string> > ReadFromString(const std::string& text)
+    static std::vector<std::vector<std::wstring> > ReadFromString(const std::wstring& text)
     {
-        std::vector<std::vector<std::string> > csvData;
+        std::vector<std::vector<std::wstring> > csvData;
 
         // 「"」記号で囲まれているとセル内改行ができることに注意
-        std::string buffComma;
+        std::wstring buffComma;
         bool doubleQuoteMode = false;
-        std::vector<std::string> work;
-        std::string::const_iterator itBegin(text.cbegin());
-        std::string::const_iterator itEnd(text.cend());;
+        std::vector<std::wstring> work;
+        std::wstring::const_iterator itBegin(text.cbegin());
+        std::wstring::const_iterator itEnd(text.cend());;
 
         for (; itBegin != itEnd; itBegin++)
         {
@@ -136,9 +137,9 @@ public:
         return csvData;
     }
 
-    static void Write(const std::string& filepath, const std::vector<std::vector<std::string> >& csvData)
+    static void Write(const std::wstring& filepath, const std::vector<std::vector<std::wstring> >& csvData)
     {
-        std::ofstream ofs(filepath);
+        std::wofstream ofs(filepath);
         for (std::size_t i = 0; i < csvData.size(); ++i)
         {
             for (std::size_t j = 0; j < csvData.at(i).size(); ++j)
@@ -156,27 +157,27 @@ public:
 private:
     csv();
 
-    static void ltrim(std::string& s)
+    static void ltrim(std::wstring& s)
     {
         s.erase(s.begin(), std::find_if(s.begin(), s.end(),
-            [](unsigned char ch)
+            [](wchar_t ch)
             {
                 return !std::isspace(ch);
             }
         ));
     }
 
-    static void rtrim(std::string& s)
+    static void rtrim(std::wstring& s)
     {
         s.erase(std::find_if(s.rbegin(), s.rend(),
-            [](unsigned char ch)
+            [](wchar_t ch)
             {
                 return !std::isspace(ch);
             }
         ).base(), s.end());
     }
 
-    static void trim(std::string& s)
+    static void trim(std::wstring& s)
     {
         rtrim(s);
         ltrim(s);

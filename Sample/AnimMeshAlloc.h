@@ -26,8 +26,8 @@ struct AnimMeshContainer : public D3DXMESHCONTAINER
 class AnimMeshAllocator : public ID3DXAllocateHierarchy
 {
 public:
-    AnimMeshAllocator(const std::string&);
-    STDMETHOD(CreateFrame)(THIS_ LPCTSTR, LPD3DXFRAME*);
+    AnimMeshAllocator(const std::wstring&);
+    STDMETHOD(CreateFrame)(THIS_ LPCSTR, LPD3DXFRAME*);
     STDMETHOD(CreateMeshContainer)(THIS_ LPCSTR,
                                    CONST D3DXMESHDATA*,
                                    CONST D3DXMATERIAL*,

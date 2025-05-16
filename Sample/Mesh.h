@@ -5,12 +5,13 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <tchar.h>
 
 class Mesh
 {
 public:
     Mesh(const LPDIRECT3DDEVICE9 D3DDevice,
-         const std::string&,
+         const std::wstring&,
          const D3DXVECTOR3&,
          const D3DXVECTOR3&,
          const float&);
@@ -20,8 +21,8 @@ public:
     void SetRot(const D3DXVECTOR3& arg);
 
 private:
-    const std::string SHADER_FILENAME = "meshShader.fx";
-    std::string m_meshName = "";
+    const std::wstring SHADER_FILENAME = _T("meshShader.fx");
+    std::wstring m_meshName = _T("");
 
     LPD3DXMESH m_D3DMesh = nullptr;
     LPD3DXEFFECT m_D3DEffect = nullptr;

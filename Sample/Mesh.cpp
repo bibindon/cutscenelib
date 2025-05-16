@@ -2,7 +2,7 @@
 #include "Common.h"
 
 Mesh::Mesh(const LPDIRECT3DDEVICE9 D3DDevice,
-           const std::string& xFilename,
+           const std::wstring& xFilename,
            const D3DXVECTOR3& position,
            const D3DXVECTOR3& rotation,
            const float& scale)
@@ -107,8 +107,8 @@ Mesh::Mesh(const LPDIRECT3DDEVICE9 D3DDevice,
 
     D3DXMATERIAL* materials = static_cast<D3DXMATERIAL*>(materialBuffer->GetBufferPointer());
 
-    std::string xFileDir = m_meshName;
-    std::size_t lastPos = xFileDir.find_last_of("\\");
+    std::wstring xFileDir = m_meshName;
+    std::size_t lastPos = xFileDir.find_last_of(_T("\\"));
     xFileDir = xFileDir.substr(0, lastPos + 1);
 
     for (DWORD i = 0; i < m_materialCount; ++i)
@@ -116,8 +116,12 @@ Mesh::Mesh(const LPDIRECT3DDEVICE9 D3DDevice,
         m_vecColor.at(i) = materials[i].MatD3D.Diffuse;
         if (materials[i].pTextureFilename != nullptr)
         {
-            std::string texPath = xFileDir;
-            texPath += materials[i].pTextureFilename;
+            int len = MultiByteToWideChar(CP_ACP, 0, materials[i].pTextureFilename, -1, NULL, 0);
+            std::wstring texFilename(len, 0);
+            MultiByteToWideChar(CP_ACP, 0, materials[i].pTextureFilename, -1, &texFilename[0], len);
+
+            std::wstring texPath = xFileDir;
+            texPath += texFilename;
             LPDIRECT3DTEXTURE9 tempTexture = nullptr;
             if (FAILED(D3DXCreateTextureFromFile(D3DDevice,
                                                  texPath.c_str(),

@@ -1,5 +1,6 @@
 ﻿#include "AnimMeshAlloc.h"
 #include "Common.h"
+#include <tchar.h>
 
 AnimMeshFrame::AnimMeshFrame(const std::string& name)
     : D3DXFRAME { }
@@ -65,16 +66,27 @@ AnimMeshContainer::AnimMeshContainer(const std::string& xFilename,
             pMaterials[i] = materials[i];
         }
 
-        std::string xFileDir = xFilename;
-        std::size_t lastPos = xFileDir.find_last_of("\\");
+        std::wstring xFileDir;
+        {
+			int len = MultiByteToWideChar(CP_ACP, 0, xFilename.c_str(), -1, NULL, 0);
+			std::wstring texFilename(len, 0);
+			MultiByteToWideChar(CP_ACP, 0, xFilename.c_str(), -1, &texFilename[0], len);
+			xFileDir = texFilename;
+        }
+
+        std::size_t lastPos = xFileDir.find_last_of(_T("\\"));
         xFileDir = xFileDir.substr(0, lastPos + 1);
 
         for (DWORD i = 0; i < materialsCount; ++i)
         {
             if (pMaterials[i].pTextureFilename != nullptr)
             {
-                std::string texPath = xFileDir;
-                texPath += materials[i].pTextureFilename;
+                int len = MultiByteToWideChar(CP_ACP, 0, materials[i].pTextureFilename, -1, NULL, 0);
+                std::wstring texFilename(len, 0);
+                MultiByteToWideChar(CP_ACP, 0, materials[i].pTextureFilename, -1, &texFilename[0], len);
+
+                std::wstring texPath = xFileDir;
+                texPath += texFilename;
                 LPDIRECT3DTEXTURE9 tempTexture = nullptr;
 
                 if (FAILED(D3DXCreateTextureFromFile(d3dDevice, texPath.c_str(), &tempTexture)))
@@ -96,14 +108,18 @@ AnimMeshContainer::AnimMeshContainer(const std::string& xFilename,
     }
 }
 
-AnimMeshAllocator::AnimMeshAllocator(const std::string& xFilename)
+AnimMeshAllocator::AnimMeshAllocator(const std::wstring& xFilename)
     : ID3DXAllocateHierarchy { },
-    m_xFilename(xFilename)
+    m_xFilename()
 {
-    // do nothing
+    int size = WideCharToMultiByte(CP_UTF8, 0, xFilename.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    std::string result(size - 1, 0);
+    WideCharToMultiByte(CP_UTF8, 0, xFilename.c_str(), -1, &result[0], size, nullptr, nullptr);
+
+    m_xFilename = result;
 }
 
-STDMETHODIMP AnimMeshAllocator::CreateFrame(LPCTSTR name, LPD3DXFRAME* newFrame)
+STDMETHODIMP AnimMeshAllocator::CreateFrame(LPCSTR name, LPD3DXFRAME* newFrame)
 {
     *newFrame = new AnimMeshFrame(name);
     return S_OK;

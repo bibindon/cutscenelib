@@ -1,8 +1,10 @@
 ﻿#include "cutscenelib.h"
 
+#include <tchar.h>
+
 using namespace NSCutScenelib;
 
-void Action::Init(const std::vector<std::string>& scriptLine,
+void Action::Init(const std::vector<std::wstring>& scriptLine,
                   IModelCreator* modelCreator,
                   IFont* font,
                   ISprite* sprTextBack,
@@ -14,125 +16,125 @@ void Action::Init(const std::vector<std::string>& scriptLine,
     m_SE = SE;
     m_camera = camera;
 
-    m_id    = std::atoi(scriptLine.at(0).c_str());
-    m_start = std::atoi(scriptLine.at(1).c_str());
-    m_end   = std::atoi(scriptLine.at(2).c_str());
+    m_id    = std::stoi(scriptLine.at(0).c_str());
+    m_start = std::stoi(scriptLine.at(1).c_str());
+    m_end   = std::stoi(scriptLine.at(2).c_str());
 
-    if (scriptLine.at(3) == "カメラ")
+    if (scriptLine.at(3) == _T("カメラ"))
     {
         m_eType = eType::CAMERA;
     }
-    else if (scriptLine.at(3) == "モデル位置")
+    else if (scriptLine.at(3) == _T("モデル位置"))
     {
         m_eType = eType::MODEL_POS;
     }
-    else if (scriptLine.at(3) == "モデル移動")
+    else if (scriptLine.at(3) == _T("モデル移動"))
     {
         m_eType = eType::MODEL_MOVE;
     }
-    else if (scriptLine.at(3) == "モデルアニメ")
+    else if (scriptLine.at(3) == _T("モデルアニメ"))
     {
         m_eType = eType::MODEL_ANIM;
     }
-    else if (scriptLine.at(3) == "テキスト")
+    else if (scriptLine.at(3) == _T("テキスト"))
     {
         m_eType = eType::TEXT;
     }
-    else if (scriptLine.at(3) == "効果音")
+    else if (scriptLine.at(3) == _T("効果音"))
     {
         m_eType = eType::SE;
     }
 
     if (m_eType == eType::CAMERA)
     {
-        std::vector<std::string> vs;
+        std::vector<std::wstring> vs;
         vs = split(scriptLine.at(4), ':');
-        m_stCamera.m_startPosX = (float)std::atof(vs.at(0).c_str());
-        m_stCamera.m_startPosY = (float)std::atof(vs.at(1).c_str());
-        m_stCamera.m_startPosZ = (float)std::atof(vs.at(2).c_str());
+        m_stCamera.m_startPosX = (float)std::stof(vs.at(0).c_str());
+        m_stCamera.m_startPosY = (float)std::stof(vs.at(1).c_str());
+        m_stCamera.m_startPosZ = (float)std::stof(vs.at(2).c_str());
 
         vs = split(scriptLine.at(5), ':');
-        m_stCamera.m_startAtX = (float)std::atof(vs.at(0).c_str());
-        m_stCamera.m_startAtY = (float)std::atof(vs.at(1).c_str());
-        m_stCamera.m_startAtZ = (float)std::atof(vs.at(2).c_str());
+        m_stCamera.m_startAtX = (float)std::stof(vs.at(0).c_str());
+        m_stCamera.m_startAtY = (float)std::stof(vs.at(1).c_str());
+        m_stCamera.m_startAtZ = (float)std::stof(vs.at(2).c_str());
 
         vs = split(scriptLine.at(6), ':');
-        m_stCamera.m_endPosX = (float)std::atof(vs.at(0).c_str());
-        m_stCamera.m_endPosY = (float)std::atof(vs.at(1).c_str());
-        m_stCamera.m_endPosZ = (float)std::atof(vs.at(2).c_str());
+        m_stCamera.m_endPosX = (float)std::stof(vs.at(0).c_str());
+        m_stCamera.m_endPosY = (float)std::stof(vs.at(1).c_str());
+        m_stCamera.m_endPosZ = (float)std::stof(vs.at(2).c_str());
 
         vs = split(scriptLine.at(7), ':');
-        m_stCamera.m_endAtX = (float)std::atof(vs.at(0).c_str());
-        m_stCamera.m_endAtY = (float)std::atof(vs.at(1).c_str());
-        m_stCamera.m_endAtZ = (float)std::atof(vs.at(2).c_str());
+        m_stCamera.m_endAtX = (float)std::stof(vs.at(0).c_str());
+        m_stCamera.m_endAtY = (float)std::stof(vs.at(1).c_str());
+        m_stCamera.m_endAtZ = (float)std::stof(vs.at(2).c_str());
     }
     else if (m_eType == eType::MODEL_POS)
     {
         m_stModelPos.m_XFileName = scriptLine.at(4);
-        m_stModelPos.m_subId     = std::atoi(scriptLine.at(5).c_str());
+        m_stModelPos.m_subId     = std::stoi(scriptLine.at(5).c_str());
         m_stModelPos.m_model     = modelCreator->CreateModel(m_stModelPos.m_XFileName,
                                                              m_stModelPos.m_subId);
 
-        std::vector<std::string> vs;
+        std::vector<std::wstring> vs;
         vs = split(scriptLine.at(6), ':');
-        m_stModelPos.m_PosX = (float)std::atof(vs.at(0).c_str());
-        m_stModelPos.m_PosY = (float)std::atof(vs.at(1).c_str());
-        m_stModelPos.m_PosZ = (float)std::atof(vs.at(2).c_str());
+        m_stModelPos.m_PosX = (float)std::stof(vs.at(0).c_str());
+        m_stModelPos.m_PosY = (float)std::stof(vs.at(1).c_str());
+        m_stModelPos.m_PosZ = (float)std::stof(vs.at(2).c_str());
 
         vs = split(scriptLine.at(7), ':');
-        m_stModelPos.m_RotX = (float)std::atof(vs.at(0).c_str());
-        m_stModelPos.m_RotY = (float)std::atof(vs.at(1).c_str());
-        m_stModelPos.m_RotZ = (float)std::atof(vs.at(2).c_str());
+        m_stModelPos.m_RotX = (float)std::stof(vs.at(0).c_str());
+        m_stModelPos.m_RotY = (float)std::stof(vs.at(1).c_str());
+        m_stModelPos.m_RotZ = (float)std::stof(vs.at(2).c_str());
     }
     else if (m_eType == eType::MODEL_MOVE)
     {
         m_stModelMove.m_XFileName = scriptLine.at(4);
-        m_stModelMove.m_subId     = std::atoi(scriptLine.at(5).c_str());
+        m_stModelMove.m_subId     = std::stoi(scriptLine.at(5).c_str());
         m_stModelMove.m_model     = modelCreator->CreateModel(m_stModelMove.m_XFileName,
                                                               m_stModelMove.m_subId);
 
-        std::vector<std::string> vs;
+        std::vector<std::wstring> vs;
         vs = split(scriptLine.at(6), ':');
-        m_stModelMove.m_startPosX = (float)std::atof(vs.at(0).c_str());
-        m_stModelMove.m_startPosY = (float)std::atof(vs.at(1).c_str());
-        m_stModelMove.m_startPosZ = (float)std::atof(vs.at(2).c_str());
+        m_stModelMove.m_startPosX = (float)std::stof(vs.at(0).c_str());
+        m_stModelMove.m_startPosY = (float)std::stof(vs.at(1).c_str());
+        m_stModelMove.m_startPosZ = (float)std::stof(vs.at(2).c_str());
 
         vs = split(scriptLine.at(7), ':');
-        m_stModelMove.m_startRotX = (float)std::atof(vs.at(0).c_str());
-        m_stModelMove.m_startRotY = (float)std::atof(vs.at(1).c_str());
-        m_stModelMove.m_startRotZ = (float)std::atof(vs.at(2).c_str());
+        m_stModelMove.m_startRotX = (float)std::stof(vs.at(0).c_str());
+        m_stModelMove.m_startRotY = (float)std::stof(vs.at(1).c_str());
+        m_stModelMove.m_startRotZ = (float)std::stof(vs.at(2).c_str());
 
         vs = split(scriptLine.at(8), ':');
-        m_stModelMove.m_endPosX = (float)std::atof(vs.at(0).c_str());
-        m_stModelMove.m_endPosY = (float)std::atof(vs.at(1).c_str());
-        m_stModelMove.m_endPosZ = (float)std::atof(vs.at(2).c_str());
+        m_stModelMove.m_endPosX = (float)std::stof(vs.at(0).c_str());
+        m_stModelMove.m_endPosY = (float)std::stof(vs.at(1).c_str());
+        m_stModelMove.m_endPosZ = (float)std::stof(vs.at(2).c_str());
 
         vs = split(scriptLine.at(9), ':');
-        m_stModelMove.m_endRotX = (float)std::atof(vs.at(0).c_str());
-        m_stModelMove.m_endRotY = (float)std::atof(vs.at(1).c_str());
-        m_stModelMove.m_endRotZ = (float)std::atof(vs.at(2).c_str());
+        m_stModelMove.m_endRotX = (float)std::stof(vs.at(0).c_str());
+        m_stModelMove.m_endRotY = (float)std::stof(vs.at(1).c_str());
+        m_stModelMove.m_endRotZ = (float)std::stof(vs.at(2).c_str());
     }
     else if (m_eType == eType::MODEL_ANIM)
     {
         m_stModelAnim.m_XFileName = scriptLine.at(4);
-        m_stModelAnim.m_subId     = std::atoi(scriptLine.at(5).c_str());
+        m_stModelAnim.m_subId     = std::stoi(scriptLine.at(5).c_str());
         m_stModelAnim.m_animName  = scriptLine.at(6).c_str();
         m_stModelAnim.m_model     = modelCreator->CreateModel(m_stModelAnim.m_XFileName,
                                                               m_stModelAnim.m_subId);
     }
     else if (m_eType == eType::TEXT)
     {
-        std::string work = scriptLine.at(4);
+        std::wstring work = scriptLine.at(4);
         work.erase(remove(work.begin(), work.end(), '\"'), work.end());
-        std::vector<std::string> vs = split(work, '\n');
+        std::vector<std::wstring> vs = split(work, '\n');
         m_stText.m_text = vs;
         m_stText.m_textShow.resize(3);
     }
     else if (m_eType == eType::SE)
     {
         m_stSE.m_fileName = scriptLine.at(4);
-        m_stSE.m_volume = std::atoi(scriptLine.at(5).c_str());
-        if (scriptLine.at(6) == "LOOP")
+        m_stSE.m_volume = std::stoi(scriptLine.at(5).c_str());
+        if (scriptLine.at(6) == _T("LOOP"))
         {
             m_stSE.m_loop = true;
         }
