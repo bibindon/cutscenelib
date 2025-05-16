@@ -1,4 +1,4 @@
-// CSV�t�@�C���ǂݍ��݂͕ۗ��B���̃N���X���g���@�3�񂭂炢�����Ȃ��Ȃ�A����Ă��Ӗ��Ȃ��B
+﻿// CSVファイル読み込みは保留。このクラスを使う機会が3回くらいしかないなら、作っても意味ない。
 #pragma once
 #include <string>
 #include <vector>
@@ -150,10 +150,10 @@ private:
     {
         std::vector<std::string> m_text;
 
-        // �\������Ă��镶���i�������艉�o�p�j
+        // 表示されている文字（文字送り演出用）
         std::vector<std::string> m_textShow;
 
-        // �\������Ă��镶�����i�������艉�o�p�j
+        // 表示されている文字数（文字送り演出用）
         size_t m_charCount = 0;
 
         int m_counter = 0;

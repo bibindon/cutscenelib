@@ -1,4 +1,4 @@
-#include "cutscenelib.h"
+ï»¿#include "cutscenelib.h"
 
 using namespace NSCutScenelib;
 
@@ -18,27 +18,27 @@ void Action::Init(const std::vector<std::string>& scriptLine,
     m_start = std::atoi(scriptLine.at(1).c_str());
     m_end   = std::atoi(scriptLine.at(2).c_str());
 
-    if (scriptLine.at(3) == "ƒJƒƒ‰")
+    if (scriptLine.at(3) == "ã‚«ãƒ¡ãƒ©")
     {
         m_eType = eType::CAMERA;
     }
-    else if (scriptLine.at(3) == "ƒ‚ƒfƒ‹ˆÊ’u")
+    else if (scriptLine.at(3) == "ãƒ¢ãƒ‡ãƒ«ä½ç½®")
     {
         m_eType = eType::MODEL_POS;
     }
-    else if (scriptLine.at(3) == "ƒ‚ƒfƒ‹ˆÚ“®")
+    else if (scriptLine.at(3) == "ãƒ¢ãƒ‡ãƒ«ç§»å‹•")
     {
         m_eType = eType::MODEL_MOVE;
     }
-    else if (scriptLine.at(3) == "ƒ‚ƒfƒ‹ƒAƒjƒ")
+    else if (scriptLine.at(3) == "ãƒ¢ãƒ‡ãƒ«ã‚¢ãƒ‹ãƒ¡")
     {
         m_eType = eType::MODEL_ANIM;
     }
-    else if (scriptLine.at(3) == "ƒeƒLƒXƒg")
+    else if (scriptLine.at(3) == "ãƒ†ã‚­ã‚¹ãƒˆ")
     {
         m_eType = eType::TEXT;
     }
-    else if (scriptLine.at(3) == "Œø‰Ê‰¹")
+    else if (scriptLine.at(3) == "åŠ¹æœéŸ³")
     {
         m_eType = eType::SE;
     }
@@ -152,7 +152,7 @@ bool Action::Update(const int elapsed)
         if (elapsed < m_end)
         {
             finish = false;
-            // progress‚Í0.f ~ 1.f
+            // progressã¯0.f ~ 1.f
             float progress = (float)(elapsed - m_start) / (m_end - m_start) ;
             float workEyeX = 0.f;
             float workEyeY = 0.f;
@@ -222,9 +222,9 @@ bool Action::Update(const int elapsed)
         if (elapsed < m_end)
         {
             finish = false;
-            // 30ƒtƒŒ[ƒ€Œo‰ß‚µ‚Ä‚©‚ç•¶š‚Ì•\¦‚ğn‚ß‚é
+            // 30ãƒ•ãƒ¬ãƒ¼ãƒ çµŒéã—ã¦ã‹ã‚‰æ–‡å­—ã®è¡¨ç¤ºã‚’å§‹ã‚ã‚‹
 
-            // •¶š‘—‚èˆ—
+            // æ–‡å­—é€ã‚Šå‡¦ç†
             m_stText.m_textShow.at(0).clear();
             m_stText.m_textShow.at(1).clear();
             m_stText.m_textShow.at(2).clear();
@@ -234,10 +234,10 @@ bool Action::Update(const int elapsed)
                 m_stText.m_charCount++;
             }
 
-            // ˆês–Ú
+            // ä¸€è¡Œç›®
             if (m_stText.m_charCount < (int)m_stText.m_text.at(0).size())
             {
-                // ƒ}ƒ‹ƒ`ƒoƒCƒg•¶š‚Í1•¶š‚Å2ƒoƒCƒg‚Å‚ ‚é‚±‚Æ‚ğl—¶‚·‚é
+                // ãƒãƒ«ãƒãƒã‚¤ãƒˆæ–‡å­—ã¯1æ–‡å­—ã§2ãƒã‚¤ãƒˆã§ã‚ã‚‹ã“ã¨ã‚’è€ƒæ…®ã™ã‚‹
                 if (m_stText.m_charCount % 2 == 0)
                 {
                     m_stText.m_textShow.at(0) = m_stText.m_text.at(0).substr(0, m_stText.m_charCount);
@@ -254,14 +254,14 @@ bool Action::Update(const int elapsed)
 
             size_t total = 0;
 
-            // “ñs–Ú
+            // äºŒè¡Œç›®
             total = m_stText.m_text.at(0).size() + m_stText.m_text.at(1).size();
             size_t secondLineCount = m_stText.m_charCount - m_stText.m_text.at(0).size();
             if (m_stText.m_charCount < total)
             {
                 if (secondLineCount >= 0)
                 {
-                    // ƒ}ƒ‹ƒ`ƒoƒCƒg•¶š‚Í1•¶š‚Å2ƒoƒCƒg‚Å‚ ‚é‚±‚Æ‚ğl—¶‚·‚é
+                    // ãƒãƒ«ãƒãƒã‚¤ãƒˆæ–‡å­—ã¯1æ–‡å­—ã§2ãƒã‚¤ãƒˆã§ã‚ã‚‹ã“ã¨ã‚’è€ƒæ…®ã™ã‚‹
                     if (secondLineCount % 2 == 0)
                     {
                         m_stText.m_textShow.at(1) = m_stText.m_text.at(1).substr(0, secondLineCount);
@@ -277,7 +277,7 @@ bool Action::Update(const int elapsed)
                 m_stText.m_textShow.at(1) = m_stText.m_text.at(1);
             }
 
-            // Os–Ú
+            // ä¸‰è¡Œç›®
             total = m_stText.m_text.at(0).size() + m_stText.m_text.at(1).size()
                                                  + m_stText.m_text.at(2).size();
 
@@ -287,7 +287,7 @@ bool Action::Update(const int elapsed)
             {
                 if (thirdLineCount >= 0)
                 {
-                    // ƒ}ƒ‹ƒ`ƒoƒCƒg•¶š‚Í1•¶š‚Å2ƒoƒCƒg‚Å‚ ‚é‚±‚Æ‚ğl—¶‚·‚é
+                    // ãƒãƒ«ãƒãƒã‚¤ãƒˆæ–‡å­—ã¯1æ–‡å­—ã§2ãƒã‚¤ãƒˆã§ã‚ã‚‹ã“ã¨ã‚’è€ƒæ…®ã™ã‚‹
                     if (thirdLineCount % 2 == 0)
                     {
                         m_stText.m_textShow.at(2) = m_stText.m_text.at(2).substr(0, thirdLineCount);

@@ -1,4 +1,4 @@
-#include "cutscenelib.h"
+﻿#include "cutscenelib.h"
 #include <sstream>
 #include "HeaderOnlyCsv.hpp"
 #include <deque>

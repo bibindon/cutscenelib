@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include <string>
 #include <fstream>
@@ -20,8 +20,8 @@ public:
             return csvData;
         }
 
-        // u"v‹L†‚ÅˆÍ‚Ü‚ê‚Ä‚¢‚é‚ÆƒZƒ‹“à‰üs‚ª‚Å‚«‚é‚±‚Æ‚É’ˆÓ
-        // u"v‹L†‚ÅˆÍ‚Ü‚ê‚Ä‚¢‚é‚ÆƒZƒ‹“à‚Åu,v‚ªg—p‚Å‚«‚é‚±‚Æ‚É’ˆÓ
+        // ã€Œ"ã€è¨˜å·ã§å›²ã¾ã‚Œã¦ã„ã‚‹ã¨ã‚»ãƒ«å†…æ”¹è¡ŒãŒã§ãã‚‹ã“ã¨ã«æ³¨æ„
+        // ã€Œ"ã€è¨˜å·ã§å›²ã¾ã‚Œã¦ã„ã‚‹ã¨ã‚»ãƒ«å†…ã§ã€Œ,ã€ãŒä½¿ç”¨ã§ãã‚‹ã“ã¨ã«æ³¨æ„
         std::ifstream ifs(filepath);
         std::string buffComma;
         bool doubleQuoteMode = false;
@@ -81,7 +81,7 @@ public:
     {
         std::vector<std::vector<std::string> > csvData;
 
-        // u"v‹L†‚ÅˆÍ‚Ü‚ê‚Ä‚¢‚é‚ÆƒZƒ‹“à‰üs‚ª‚Å‚«‚é‚±‚Æ‚É’ˆÓ
+        // ã€Œ"ã€è¨˜å·ã§å›²ã¾ã‚Œã¦ã„ã‚‹ã¨ã‚»ãƒ«å†…æ”¹è¡ŒãŒã§ãã‚‹ã“ã¨ã«æ³¨æ„
         std::string buffComma;
         bool doubleQuoteMode = false;
         std::vector<std::string> work;
