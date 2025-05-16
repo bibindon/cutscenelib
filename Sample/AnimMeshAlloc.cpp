@@ -1,4 +1,4 @@
-#include "AnimMeshAlloc.h"
+﻿#include "AnimMeshAlloc.h"
 #include "Common.h"
 
 AnimMeshFrame::AnimMeshFrame(const std::string& name)

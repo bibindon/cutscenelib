@@ -1,4 +1,4 @@
-#include "Mesh.h"
+﻿#include "Mesh.h"
 #include "Common.h"
 
 Mesh::Mesh(const LPDIRECT3DDEVICE9 D3DDevice,

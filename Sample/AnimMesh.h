@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "AnimMeshAlloc.h"
 
@@ -57,7 +57,7 @@ private:
     float m_scale = 1.0f;
 
     //-------------------------------------------------------
-    // LPD3DXANIMATIONCONTROLLER�֘A
+    // LPD3DXANIMATIONCONTROLLER関連
     //-------------------------------------------------------
     bool m_isPlaying = false;
     std::vector<LPD3DXANIMATIONSET> m_animSets;

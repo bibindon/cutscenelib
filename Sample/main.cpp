@@ -1,4 +1,4 @@
-// TODO subID‚ðl—¶‚·‚é
+ï»¿// TODO subIDã‚’è€ƒæ…®ã™ã‚‹
 #pragma comment(lib, "d3d9.lib")
 #ifdef _DEBUG
 #pragma comment(lib, "d3dx9d.lib")
@@ -131,7 +131,7 @@ public:
                                         OUT_TT_ONLY_PRECIS,
                                         ANTIALIASED_QUALITY,
                                         FF_DONTCARE,
-                                        "‚l‚r –¾’©",
+                                        "ï¼­ï¼³ æ˜Žæœ",
                                         &m_pFont);
         }
         else
@@ -224,7 +224,7 @@ public:
     virtual void SetAnim(const std::string& animName)
     {
         // do nothing
-        throw std::exception("ƒAƒjƒ‚ª‚È‚¢ƒ‚ƒfƒ‹‚ÅƒAƒjƒ‚ðŽÀs‚µ‚æ‚¤‚Æ‚µ‚½");
+        throw std::exception("ã‚¢ãƒ‹ãƒ¡ãŒãªã„ãƒ¢ãƒ‡ãƒ«ã§ã‚¢ãƒ‹ãƒ¡ã‚’å®Ÿè¡Œã—ã‚ˆã†ã¨ã—ãŸ");
     }
 
 private:
@@ -246,7 +246,7 @@ public:
         m_animMesh->SetRotate(D3DXVECTOR3(AtX, AtY, AtZ));
     }
 
-    // progress‚Í 0 ~ 100‚ª—^‚¦‚ç‚ê‚é ?
+    // progressã¯ 0 ~ 100ãŒä¸Žãˆã‚‰ã‚Œã‚‹ ?
     virtual void SetAnim(const std::string& animName)
     {
         m_animMesh->SetAnim(animName);
