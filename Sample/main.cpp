@@ -224,7 +224,7 @@ public:
     virtual void SetAnim(const std::wstring& animName)
     {
         // do nothing
-        throw std::exception("アニメがないモデルでアニメを実行しようとした");
+        throw std::exception("This model does not include any animation.");
     }
 
 private:
